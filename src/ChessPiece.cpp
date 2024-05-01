@@ -10,6 +10,23 @@ ChessPiece::ChessPiece(sf::Vector2i position, bool bIsBlack)
     m_bIsBlack = bIsBlack;
 }
 
+//Tries to move the piece to the specified location. Note that this function does nct call CalculatePossibleMoves on success.
+int ChessPiece::AttemptMove(ChessBoard& board, sf::Vector2i position)
+{
+    int result = 0;
+    if(std::find(m_possibleMoves.begin(), m_possibleMoves.end(), position) != m_possibleMoves.end())
+    {
+        result++;
+        result += board.GetBoard()[position.y][position.x] != EMPTY;
+        board.ModifyBoard(position, m_pieceType);
+        board.ModifyBoard(m_position, EMPTY);
+        m_position = position;
+        return result;
+    }
+    std::cout<<"Attempt to move to an illegal square\n";
+    return result;
+}
+
 bool ChessPiece::IsLegalMove(const Board& board, sf::Vector2i position, bool bIsBlack)
 {
     try

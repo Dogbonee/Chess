@@ -6,6 +6,7 @@
 #define CHESSBOARD_H
 #include <array>
 #include <iostream>
+#include <SFML/System/Vector2.hpp>
 
 using Board = std::array<std::array<int, 8>, 8>;
 enum PieceType{
@@ -44,7 +45,11 @@ class ChessBoard {
 public:
     ChessBoard();
 
+    void PrintBoard();
+
+    void ModifyBoard(sf::Vector2i position, PieceType value);
     const Board& GetBoard() const;
+
 
 
 };

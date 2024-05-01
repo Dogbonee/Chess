@@ -9,6 +9,24 @@ ChessBoard::ChessBoard()
 
 }
 
+void ChessBoard::PrintBoard()
+{
+    for(const auto& i : m_board)
+    {
+        for(const auto& j : i)
+        {
+            std::cout<<j<<' ';
+        }
+        std::cout<<std::endl;
+    }
+    std::cout<<std::endl;
+}
+
+void ChessBoard::ModifyBoard(sf::Vector2i position, PieceType value)
+{
+    m_board[position.y][position.x] = value;
+}
+
 const Board & ChessBoard::GetBoard() const
 {
     return m_board;

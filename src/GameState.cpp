@@ -13,14 +13,14 @@
 
 GameState::GameState(StateMachine* p_sm, sf::RenderWindow* p_rw) : State(p_sm, p_rw){
 
-    for(int y = 1; y != 6; y+=5)
+    for(int y = 1; y <= 6; y+=5)
     {
         for(int i = 0; i < 8; i++)
         {
             m_pieces.emplace_back(std::make_unique<Pawn>(sf::Vector2i(i,y), y == 1));
         }
     }
-    for(int y = 0; y != 7; y+=7)
+    for(int y = 0; y <= 7; y+=7)
     {
         m_pieces.emplace_back(std::make_unique<Rook>(sf::Vector2i(0,y), y == 0));
         m_pieces.emplace_back(std::make_unique<Knight>(sf::Vector2i(1,y), y == 0));
@@ -37,6 +37,14 @@ GameState::GameState(StateMachine* p_sm, sf::RenderWindow* p_rw) : State(p_sm, p
         piece->CalculatePossibleMoves(m_board.GetBoard());
         piece->PrintPossibleMoves();
     }
+
+    m_board.PrintBoard();
+
+
+    m_pieces[0]->AttemptMove(m_board, sf::Vector2i(0,3));
+
+
+    m_board.PrintBoard();
 }
 
 GameState::~GameState() = default;

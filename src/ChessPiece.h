@@ -6,7 +6,7 @@
 #define CHESSPIECE_H
 #include <SFML/System/Vector2.hpp>
 #include <vector>
-
+#include <algorithm>
 #include "ChessBoard.h"
 
 class ChessPiece {
@@ -21,6 +21,8 @@ protected:
 
 public:
     ChessPiece(sf::Vector2i position, bool bIsBlack);
+
+    int AttemptMove(ChessBoard& board, sf::Vector2i position);
 
     virtual void CalculatePossibleMoves(const Board& board) = 0;
     bool IsLegalMove(const Board& board, sf::Vector2i position, bool bIsBlack);
