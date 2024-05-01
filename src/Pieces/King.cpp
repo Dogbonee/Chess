@@ -7,10 +7,13 @@
 King::King(sf::Vector2i position, bool bIsBlack) : ChessPiece(position, bIsBlack)
 {
     m_pieceType = bIsBlack ? BLACK_KING : WHITE_KING;
+    setTexture(bIsBlack ? System::BK_Texture : System::WK_Texture);
+    SetOriginToCenterOfTexture();
 }
 
 void King::CalculatePossibleMoves(const Board &board)
 {
+    m_possibleMoves.clear();
     for(int y = -1; y <= 1; y++)
     {
         for(int x = -1; x <= 1; x++)
@@ -24,3 +27,4 @@ void King::CalculatePossibleMoves(const Board &board)
         }
     }
 }
+

@@ -16,10 +16,21 @@ class GameState : public State{
 
     void Update() override;
     void Render() override;
+    void HandleEvents() override;
+
 
 
     ChessBoard m_board;
-    std::vector<std::unique_ptr<ChessPiece>> m_pieces;
+    std::vector<std::shared_ptr<ChessPiece>> m_pieces;
+
+    std::shared_ptr<ChessPiece> p_activePiece;
+    sf::Vector2f m_lastPieceCoords;
+
+
+    void DragPiece(sf::Vector2i position);
+
+    bool CheckSpot(sf::Vector2f position);
+    void ConfirmPiece(sf::Vector2i boardCoords);
 
 public:
     GameState(StateMachine* p_sm, sf::RenderWindow* p_rw);

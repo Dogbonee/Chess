@@ -5,12 +5,14 @@
 #include "StateMachine.h"
 
 #include "GameState.h"
+#include "System.h"
 
 
-StateMachine::StateMachine() : m_window(sf::VideoMode(1920,1080), "Default Name")
+StateMachine::StateMachine() : m_window(sf::VideoMode(System::SCREEN_WIDTH, System::SCREEN_HEIGHT), "Default Name", sf::Style::Fullscreen)
 {
+    System::LoadResources();
     m_states.emplace_back(new GameState(this, &m_window));
-    m_window.setVisible(false);
+    //m_window.setVisible(false);
 }
 
 StateMachine::~StateMachine()

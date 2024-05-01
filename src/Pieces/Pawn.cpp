@@ -4,14 +4,18 @@
 
 #include "Pawn.h"
 
+#include "../System.h"
+
 Pawn::Pawn(sf::Vector2i position, bool bIsBlack) : ChessPiece(position, bIsBlack), bIsFirstMove(true)
 {
     m_pieceType = bIsBlack ? BLACK_PAWN : WHITE_PAWN;
-    m_bIsBlack = bIsBlack;
+    setTexture(bIsBlack ? System::BP_Texture : System::WP_Texture);
+    SetOriginToCenterOfTexture();
 }
 
 void Pawn::CalculatePossibleMoves(const Board &board)
 {
+    m_possibleMoves.clear();
     for(int i = 1; i <= 1 + bIsFirstMove; i++){
         int colorSwitch = m_bIsBlack ? i : -i;
         sf::Vector2i attemptedMove(m_position.x, m_position.y+colorSwitch);
@@ -22,4 +26,18 @@ void Pawn::CalculatePossibleMoves(const Board &board)
     }
 
 }
+
+int Pawn::AttemptMove(ChessBoard &board, sf::Vector2i position)
+{
+    int result = ChessPiece::AttemptMove(board, position);
+    if(result)
+    {
+        bIsFirstMove = false;
+    }
+    return result;
+}
+
+
+
+
 

@@ -19,6 +19,7 @@ void State::HandleEvents()
                 p_window->close();
             break;
             case sf::Event::KeyPressed:
+
                 HandleKeyboardInput(event.key.code);
             break;
         }
@@ -27,5 +28,9 @@ void State::HandleEvents()
 
 void State::HandleKeyboardInput(sf::Keyboard::Key key)
 {
+    if(key == sf::Keyboard::Escape)
+    {
+        p_window->close();
+    }
 }
 
