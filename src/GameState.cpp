@@ -11,7 +11,7 @@
 #include "Pieces/Rook.h"
 
 
-GameState::GameState(StateMachine* p_sm, sf::RenderWindow* p_rw) : State(p_sm, p_rw){
+GameState::GameState(StateMachine* p_sm, sf::RenderWindow* p_rw) : State(p_sm, p_rw), m_bIsBlackTurn(false), m_bIsChecked(false){
 
     for(int y = 1; y <= 6; y+=5)
     {
@@ -31,20 +31,11 @@ GameState::GameState(StateMachine* p_sm, sf::RenderWindow* p_rw) : State(p_sm, p
         m_pieces.emplace_back(std::make_shared<Knight>(sf::Vector2i(6,y), y == 0));
         m_pieces.emplace_back(std::make_shared<Rook>(sf::Vector2i(7,y), y == 0));
     }
-
     for(const auto & piece : m_pieces)
     {
         piece->CalculatePossibleMoves(m_board.GetBoard());
-        piece->PrintPossibleMoves();
     }
 
-    m_board.PrintBoard();
-
-
-    m_pieces[0]->AttemptMove(m_board, sf::Vector2i(0,3));
-
-
-    m_board.PrintBoard();
 }
 
 GameState::~GameState() = default;
@@ -54,7 +45,6 @@ void GameState::Update()
     HandleEvents();
     Render();
 }
-
 
 void GameState::Render()
 {
@@ -99,7 +89,7 @@ void GameState::HandleEvents()
                 {
                     for(const auto& i : m_pieces)
                     {
-                        if(i->IsHovered())
+                        if(i->ManageCollision(sf::Vector2i(event.mouseButton.x, event.mouseButton.y)))
                         {
                             p_activePiece = i;
                             m_lastPieceCoords = p_activePiece->getPosition();
@@ -124,7 +114,6 @@ void GameState::HandleEvents()
     }
 }
 
-
 void GameState::DragPiece(sf::Vector2i position)
 {
     if(p_activePiece)
@@ -140,11 +129,20 @@ bool GameState::CheckSpot(sf::Vector2f position)
 
     if(p_activePiece != nullptr)
     {
-        if(p_activePiece->AttemptMove(m_board, screenToBoordCoordinates))
+        if(p_activePiece->IsBlack() == m_bIsBlackTurn)
         {
-            ConfirmPiece(screenToBoordCoordinates);
-            p_activePiece = nullptr;
-            return true;
+
+            int moveResult = p_activePiece->AttemptMove(m_board, screenToBoordCoordinates);
+            if (moveResult == 2)
+            {
+                CapturePiece(screenToBoordCoordinates);
+            }
+            if(moveResult > 0)
+            {
+                ConfirmPiece(screenToBoordCoordinates);
+                p_activePiece = nullptr;
+                return true;
+            }
         }
         p_activePiece->MovePieceVisual(sf::Vector2i(m_lastPieceCoords));
         p_activePiece = nullptr;
@@ -164,5 +162,30 @@ void GameState::ConfirmPiece(sf::Vector2i boardCoords)
     for(const auto& piece : m_pieces)
     {
         piece->CalculatePossibleMoves(m_board.GetBoard());
+    }
+
+    m_bIsBlackTurn = !m_bIsBlackTurn;
+}
+
+void GameState::CapturePiece(sf::Vector2i boordCoords)
+{
+    for(int i = 0; i < m_pieces.size(); i++)
+    {
+        if(m_pieces[i]->GetBoardCoordinates() == boordCoords && m_pieces[i] != p_activePiece)
+        {
+            m_pieces.erase(m_pieces.begin() + i);
+        }
+    }
+}
+
+bool GameState::DetermineCheckStatus()
+{
+    for(const auto& piece : m_pieces)
+    {
+        for(const auto& move : piece->GetPossibleMoves())
+        {
+            auto result = static_cast<PieceType>(m_board.GetBoard()[move.y][move.x]);
+            m_bIsChecked = result == WHITE_KING || result == BLACK_KING;
+        }
     }
 }

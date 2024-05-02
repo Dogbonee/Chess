@@ -5,7 +5,7 @@
 #include "ChessPiece.h"
 
 #include "System.h"
-#include "../../../../../../Users/24crickenbach/AppData/Local/Programs/CLion 2/bin/mingw/x86_64-w64-mingw32/include/complex.h"
+
 
 ChessPiece::ChessPiece(sf::Vector2i position, bool bIsBlack) : m_bIsHovered(false)
 {
@@ -42,18 +42,22 @@ int ChessPiece::AttemptMove(ChessBoard& board, sf::Vector2i position)
         return result;
 
     }
-    std::cout<<"Attempt to move to an illegal square\n";
+
     return result;
 }
 
-bool ChessPiece::IsLegalMove(const Board& board, sf::Vector2i position, bool bIsBlack)
+int ChessPiece::IsLegalMove(const Board& board, sf::Vector2i position, bool bIsBlack)
 {
     try
     {
         int boardPiece = board.at(position.y).at(position.x);
-        if(boardPiece == EMPTY || (bIsBlack && boardPiece < 7) || (!bIsBlack && boardPiece > 6))
+        if(boardPiece == EMPTY)
         {
-            return true;
+            return 1;
+        }
+        if((bIsBlack && boardPiece < 7) || (!bIsBlack && boardPiece > 6))
+        {
+            return 2;
         }
     }catch(const std::out_of_range& e)
     {
@@ -86,8 +90,23 @@ void ChessPiece::MovePieceVisual(sf::Vector2i mousePos)
     m_detectionArea.top = castedPos.y - m_detectionArea.height/2;
 }
 
+const std::vector<sf::Vector2i> & ChessPiece::GetPossibleMoves()
+{
+    return m_possibleMoves;
+}
+
 bool ChessPiece::IsHovered() const
 {
     return m_bIsHovered;
+}
+
+bool ChessPiece::IsBlack()
+{
+    return m_bIsBlack;
+}
+
+const sf::Vector2i & ChessPiece::GetBoardCoordinates()
+{
+    return m_position;
 }
 

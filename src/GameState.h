@@ -26,11 +26,15 @@ class GameState : public State{
     std::shared_ptr<ChessPiece> p_activePiece;
     sf::Vector2f m_lastPieceCoords;
 
+    bool m_bIsBlackTurn;
+
+    bool m_bIsChecked;
 
     void DragPiece(sf::Vector2i position);
-
     bool CheckSpot(sf::Vector2f position);
     void ConfirmPiece(sf::Vector2i boardCoords);
+    void CapturePiece(sf::Vector2i boordCoords);
+    bool DetermineCheckStatus();
 
 public:
     GameState(StateMachine* p_sm, sf::RenderWindow* p_rw);
