@@ -7,10 +7,13 @@
 Knight::Knight(sf::Vector2i position, bool bIsBlack) : ChessPiece(position, bIsBlack)
 {
     m_pieceType = bIsBlack ? BLACK_KNIGHT : WHITE_KNIGHT;
+    setTexture(bIsBlack ? System::BN_Texture : System::WN_Texture);
+    SetOriginToCenterOfTexture();
 }
 
 void Knight::CalculatePossibleMoves(const Board &board)
 {
+    m_possibleMoves.clear();
     for(int i = -1; i <= 1; i+=2)
     {
         sf::Vector2i query;
@@ -25,3 +28,5 @@ void Knight::CalculatePossibleMoves(const Board &board)
         if(IsLegalMove(board, query, m_bIsBlack)) m_possibleMoves.emplace_back(query);
     }
 }
+
+

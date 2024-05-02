@@ -13,6 +13,7 @@ public:
     Queen(sf::Vector2i position, bool bIsBlack);
 
     void CalculatePossibleMoves(const Board &board) override;
+
 };
 
 

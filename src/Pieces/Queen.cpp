@@ -7,10 +7,13 @@
 Queen::Queen(sf::Vector2i position, bool bIsBlack) : ChessPiece(position, bIsBlack)
 {
     m_pieceType = bIsBlack ? BLACK_QUEEN : WHITE_QUEEN;
+    setTexture(bIsBlack ? System::BQ_Texture : System::WQ_Texture);
+    SetOriginToCenterOfTexture();
 }
 
 void Queen::CalculatePossibleMoves(const Board &board)
 {
+    m_possibleMoves.clear();
     for(int i = -8; i < 8; i++)
     {
         sf::Vector2i attemptedMove(m_position.x, m_position.y + i);
@@ -60,3 +63,4 @@ void Queen::CalculatePossibleMoves(const Board &board)
         }
     }
 }
+

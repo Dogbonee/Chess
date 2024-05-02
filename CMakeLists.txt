@@ -25,7 +25,9 @@ set(SOURCE_FILES src/main.cpp
         src/Pieces/Queen.cpp
         src/Pieces/Queen.h
         src/Pieces/King.cpp
-        src/Pieces/King.h)
+        src/Pieces/King.h
+        src/System.cpp
+        src/System.h)
 set(SFML_STATIC_LIBRARIES true)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
