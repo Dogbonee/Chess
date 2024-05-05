@@ -33,10 +33,12 @@ class GameState : public State{
 
     void DragPiece(sf::Vector2i position);
     bool CheckSpot(sf::Vector2f position);
+    void CullMoves();
     void ConfirmPiece(sf::Vector2i boardCoords);
     void CapturePiece(sf::Vector2i boordCoords);
     void DetermineCheckStatus();
     void CalculateBoardMoves();
+    void HandlePieceMovement();
 
     void SyncVisualsWithBoard();
 

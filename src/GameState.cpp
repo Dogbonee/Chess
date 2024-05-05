@@ -132,8 +132,7 @@ bool GameState::CheckSpot(sf::Vector2f position)
     {
         m_board = tempBoard;
         p_activePiece->SetPiece(tempPos);
-        CalculateBoardMoves();
-        DetermineCheckStatus();
+        HandlePieceMovement();
         p_activePiece->MovePieceVisual(sf::Vector2i(m_lastPieceCoords));
         p_activePiece = nullptr;
     };
@@ -154,11 +153,7 @@ bool GameState::CheckSpot(sf::Vector2f position)
                 if(abs(kingMove) == 2)
                 {
                     p_activePiece->AttemptMove(m_board, sf::Vector2i(p_activePiece->GetBoardCoordinates().x + kingMove/2, p_activePiece->GetBoardCoordinates().y));
-                    //m_board.ModifyBoard(sf::Vector2i(p_activePiece->GetBoardCoordinates().x + kingMove/2, p_activePiece->GetBoardCoordinates().y), p_activePiece->GetPieceType());
-                    //m_board.ModifyBoard(p_activePiece->GetBoardCoordinates(), EMPTY);
-
-                    CalculateBoardMoves();
-                    DetermineCheckStatus();
+                    HandlePieceMovement();
                     if((m_bWhiteIsChecked && !m_bIsBlackTurn) || (m_bBlackIsChecked && m_bIsBlackTurn))
                     {
                         revertBoard(tempBoard, tempPos);
@@ -168,8 +163,7 @@ bool GameState::CheckSpot(sf::Vector2f position)
                 }
                 m_board = tempBoard;
                 p_activePiece->SetPiece(tempPos);
-                CalculateBoardMoves();
-                DetermineCheckStatus();
+                HandlePieceMovement();
                 p_activePiece->MovePieceVisual(sf::Vector2i(m_lastPieceCoords));
             }
             int moveResult = p_activePiece->AttemptMove(m_board, screenToBoordCoordinates);
@@ -177,8 +171,7 @@ bool GameState::CheckSpot(sf::Vector2f position)
             {
                 CapturePiece(screenToBoordCoordinates);
             }
-            CalculateBoardMoves();
-            DetermineCheckStatus();
+            HandlePieceMovement();
 
             //Tries to move, and if checking is not resolved, do not move
             if((m_bWhiteIsChecked && !m_bIsBlackTurn) || (m_bBlackIsChecked && m_bIsBlackTurn))
@@ -200,6 +193,40 @@ bool GameState::CheckSpot(sf::Vector2f position)
     return false;
 }
 
+void GameState::CullMoves()
+{
+
+    auto tempBoard = m_board;
+
+    for(const auto& piece : m_pieces)
+    {
+        std::vector<sf::Vector2i> culledMoves;
+        auto tempPos = piece->GetBoardCoordinates();
+        for(int i = 0; i < piece->GetPossibleMoves().size(); i++)
+        {
+            int moveResult = piece->AttemptMove(m_board, piece->GetPossibleMoves()[i]);
+            CalculateBoardMoves();
+            DetermineCheckStatus();
+
+            if(!((m_bWhiteIsChecked && !m_bIsBlackTurn) || (m_bBlackIsChecked && m_bIsBlackTurn) || moveResult == 0))
+            {
+
+                culledMoves.emplace_back(piece->GetPossibleMoves()[i]);
+            }
+            m_board = tempBoard;
+            piece->SetPiece(tempPos);
+            CalculateBoardMoves();
+            DetermineCheckStatus();
+        }
+        piece->ReplacePossibleMoves(culledMoves);
+        if(piece->GetPossibleMoves().empty() && ((piece->GetPieceType() == BLACK_KING && m_bBlackIsChecked) || (piece->GetPieceType() == WHITE_KING && m_bWhiteIsChecked)))
+        {
+            Checkmate();
+        }
+    }
+
+}
+
 void GameState::ConfirmPiece(sf::Vector2i boardCoords)
 {
     if(p_activePiece->GetPieceType() == WHITE_KING || p_activePiece->GetPieceType() == BLACK_KING)
@@ -215,10 +242,10 @@ void GameState::ConfirmPiece(sf::Vector2i boardCoords)
         p_activePiece->MovePieceVisual(boardToScreenCoords);
     }
     */
-    CalculateBoardMoves();
+    HandlePieceMovement();
 
     m_bIsBlackTurn = !m_bIsBlackTurn;
-    DetermineCheckStatus();
+
 
 
 
@@ -265,13 +292,17 @@ void GameState::CalculateBoardMoves()
     for(const auto& piece : m_pieces)
     {
         piece->CalculatePossibleMoves(m_board.GetBoard());
-        if(piece->GetPossibleMoves().empty() && ((piece->GetPieceType() == BLACK_KING && m_bBlackIsChecked) || (piece->GetPieceType() == WHITE_KING && m_bWhiteIsChecked)))
-        {
-            Checkmate();
-        }
+
 
 
     }
+}
+
+void GameState::HandlePieceMovement()
+{
+    CalculateBoardMoves();
+    DetermineCheckStatus();
+    //CullMoves();
 }
 
 void GameState::SyncVisualsWithBoard()
