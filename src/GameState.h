@@ -28,13 +28,15 @@ class GameState : public State{
 
     bool m_bIsBlackTurn;
 
-    bool m_bIsChecked;
+    bool m_bWhiteIsChecked;
+    bool m_bBlackIsChecked;
 
     void DragPiece(sf::Vector2i position);
     bool CheckSpot(sf::Vector2f position);
     void ConfirmPiece(sf::Vector2i boardCoords);
     void CapturePiece(sf::Vector2i boordCoords);
-    bool DetermineCheckStatus();
+    void DetermineCheckStatus();
+    void CalculateBoardMoves();
 
 public:
     GameState(StateMachine* p_sm, sf::RenderWindow* p_rw);

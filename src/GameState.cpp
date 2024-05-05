@@ -11,7 +11,7 @@
 #include "Pieces/Rook.h"
 
 
-GameState::GameState(StateMachine* p_sm, sf::RenderWindow* p_rw) : State(p_sm, p_rw), m_bIsBlackTurn(false), m_bIsChecked(false){
+GameState::GameState(StateMachine* p_sm, sf::RenderWindow* p_rw) : State(p_sm, p_rw), m_bIsBlackTurn(false), m_bWhiteIsChecked(false), m_bBlackIsChecked(false){
 
     for(int y = 1; y <= 6; y+=5)
     {
@@ -125,8 +125,18 @@ void GameState::DragPiece(sf::Vector2i position)
 bool GameState::CheckSpot(sf::Vector2f position)
 {
 
-    sf::Vector2i screenToBoordCoordinates((position.x - System::X_CENTER_OFFSET) / System::TILE_SIZE, position.y / System::TILE_SIZE);
+    auto revertBoard = [this](auto tempBoard)
+    {
+        m_board = tempBoard;
+        CalculateBoardMoves();
+        DetermineCheckStatus();
+        p_activePiece->MovePieceVisual(sf::Vector2i(m_lastPieceCoords));
+        p_activePiece = nullptr;
+    };
 
+    //need to cull possible moves when in check
+    sf::Vector2i screenToBoordCoordinates((position.x - System::X_CENTER_OFFSET) / System::TILE_SIZE, position.y / System::TILE_SIZE);
+    ChessBoard tempBoard = m_board;
     if(p_activePiece != nullptr)
     {
         if(p_activePiece->IsBlack() == m_bIsBlackTurn)
@@ -137,6 +147,16 @@ bool GameState::CheckSpot(sf::Vector2f position)
             {
                 CapturePiece(screenToBoordCoordinates);
             }
+            CalculateBoardMoves();
+            DetermineCheckStatus();
+
+            //Tries to move, and if checking is not resolved, do not move
+            if((m_bWhiteIsChecked && !m_bIsBlackTurn) || (m_bBlackIsChecked && m_bIsBlackTurn))
+            {
+                revertBoard(tempBoard);
+                return false;
+            }
+
             if(moveResult > 0)
             {
                 ConfirmPiece(screenToBoordCoordinates);
@@ -144,9 +164,7 @@ bool GameState::CheckSpot(sf::Vector2f position)
                 return true;
             }
         }
-        p_activePiece->MovePieceVisual(sf::Vector2i(m_lastPieceCoords));
-        p_activePiece = nullptr;
-        return false;
+        revertBoard(tempBoard);
     }
     return false;
 }
@@ -159,12 +177,11 @@ void GameState::ConfirmPiece(sf::Vector2i boardCoords)
     {
         p_activePiece->MovePieceVisual(boardToScreenCoords);
     }
-    for(const auto& piece : m_pieces)
-    {
-        piece->CalculatePossibleMoves(m_board.GetBoard());
-    }
+    CalculateBoardMoves();
 
     m_bIsBlackTurn = !m_bIsBlackTurn;
+    DetermineCheckStatus();
+    std::cout<<"White is checked: " << m_bWhiteIsChecked<<"\nBlack is checked: "<< m_bBlackIsChecked<<std::endl;
 }
 
 void GameState::CapturePiece(sf::Vector2i boordCoords)
@@ -176,16 +193,37 @@ void GameState::CapturePiece(sf::Vector2i boordCoords)
             m_pieces.erase(m_pieces.begin() + i);
         }
     }
+
 }
 
-bool GameState::DetermineCheckStatus()
+void GameState::DetermineCheckStatus()
 {
     for(const auto& piece : m_pieces)
     {
         for(const auto& move : piece->GetPossibleMoves())
         {
+            m_bWhiteIsChecked = false;
+            m_bBlackIsChecked = false;
             auto result = static_cast<PieceType>(m_board.GetBoard()[move.y][move.x]);
-            m_bIsChecked = result == WHITE_KING || result == BLACK_KING;
+            if(result == WHITE_KING)
+            {
+                m_bWhiteIsChecked = true;
+                return;
+            }
+            if(result == BLACK_KING)
+            {
+                m_bBlackIsChecked = true;
+                return;
+            }
         }
+    }
+
+}
+
+void GameState::CalculateBoardMoves()
+{
+    for(const auto& piece : m_pieces)
+    {
+        piece->CalculatePossibleMoves(m_board.GetBoard());
     }
 }
