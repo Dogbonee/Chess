@@ -128,9 +128,10 @@ void GameState::DragPiece(sf::Vector2i position)
 bool GameState::CheckSpot(sf::Vector2f position)
 {
 
-    auto revertBoard = [this](auto tempBoard)
+    auto revertBoard = [this](auto tempBoard, auto tempPos)
     {
         m_board = tempBoard;
+        p_activePiece->SetPiece(tempPos);
         CalculateBoardMoves();
         DetermineCheckStatus();
         p_activePiece->MovePieceVisual(sf::Vector2i(m_lastPieceCoords));
@@ -140,8 +141,10 @@ bool GameState::CheckSpot(sf::Vector2f position)
     //need to cull possible moves when in check
     sf::Vector2i screenToBoordCoordinates((position.x - System::X_CENTER_OFFSET) / System::TILE_SIZE, position.y / System::TILE_SIZE);
     ChessBoard tempBoard = m_board;
+
     if(p_activePiece != nullptr)
     {
+        auto tempPos = p_activePiece->GetBoardCoordinates();
         if(p_activePiece->IsBlack() == m_bIsBlackTurn)
         {
 
@@ -150,19 +153,21 @@ bool GameState::CheckSpot(sf::Vector2f position)
                 auto kingMove = screenToBoordCoordinates.x - p_activePiece->GetBoardCoordinates().x;
                 if(abs(kingMove) == 2)
                 {
-                    m_board.ModifyBoard(sf::Vector2i(p_activePiece->GetBoardCoordinates().x + kingMove/2, p_activePiece->GetBoardCoordinates().y), p_activePiece->GetPieceType());
-                    m_board.ModifyBoard(p_activePiece->GetBoardCoordinates(), EMPTY);
+                    p_activePiece->AttemptMove(m_board, sf::Vector2i(p_activePiece->GetBoardCoordinates().x + kingMove/2, p_activePiece->GetBoardCoordinates().y));
+                    //m_board.ModifyBoard(sf::Vector2i(p_activePiece->GetBoardCoordinates().x + kingMove/2, p_activePiece->GetBoardCoordinates().y), p_activePiece->GetPieceType());
+                    //m_board.ModifyBoard(p_activePiece->GetBoardCoordinates(), EMPTY);
 
                     CalculateBoardMoves();
                     DetermineCheckStatus();
                     if((m_bWhiteIsChecked && !m_bIsBlackTurn) || (m_bBlackIsChecked && m_bIsBlackTurn))
                     {
-                        revertBoard(tempBoard);
+                        revertBoard(tempBoard, tempPos);
                         return false;
                     }
 
                 }
                 m_board = tempBoard;
+                p_activePiece->SetPiece(tempPos);
                 CalculateBoardMoves();
                 DetermineCheckStatus();
                 p_activePiece->MovePieceVisual(sf::Vector2i(m_lastPieceCoords));
@@ -178,7 +183,7 @@ bool GameState::CheckSpot(sf::Vector2f position)
             //Tries to move, and if checking is not resolved, do not move
             if((m_bWhiteIsChecked && !m_bIsBlackTurn) || (m_bBlackIsChecked && m_bIsBlackTurn))
             {
-                revertBoard(tempBoard);
+                revertBoard(tempBoard, tempPos);
                 return false;
             }
 
@@ -190,13 +195,17 @@ bool GameState::CheckSpot(sf::Vector2f position)
             }
 
         }
-        revertBoard(tempBoard);
+        revertBoard(tempBoard, tempPos);
     }
     return false;
 }
 
 void GameState::ConfirmPiece(sf::Vector2i boardCoords)
 {
+    if(p_activePiece->GetPieceType() == WHITE_KING || p_activePiece->GetPieceType() == BLACK_KING)
+    {
+        p_activePiece->SetHasMoved();
+    }
     SyncVisualsWithBoard(); //TODO: Only move active piece and castling piece
     /*
     sf::Vector2i boardToScreenCoords(boardCoords.x * System::TILE_SIZE + System::X_CENTER_OFFSET + System::TILE_SIZE/2,

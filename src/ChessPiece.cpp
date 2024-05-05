@@ -7,7 +7,7 @@
 #include "System.h"
 
 
-ChessPiece::ChessPiece(sf::Vector2i position, bool bIsBlack) : m_bIsHovered(false)
+ChessPiece::ChessPiece(sf::Vector2i position, bool bIsBlack) : m_bIsHovered(false), m_bHasMoved(false)
 {
     m_position = position;
     m_bIsBlack = bIsBlack;
@@ -29,6 +29,7 @@ void ChessPiece::SetOriginToCenterOfTexture()
 
 
 //Tries to move the piece to the specified location. Note that this function does nct call CalculatePossibleMoves on success.
+//Will not set piece position automatically, but will modify the chessboard in place.
 //returns 0 on illegal move
 //returns 1 on move to empty square
 //returns 2 on move to filled square
@@ -47,6 +48,16 @@ int ChessPiece::AttemptMove(ChessBoard& board, sf::Vector2i position)
     }
 
     return result;
+}
+
+void ChessPiece::SetPiece(sf::Vector2i position)
+{
+    m_position = position;
+}
+
+void ChessPiece::SetHasMoved()
+{
+    m_bHasMoved = true;
 }
 
 int ChessPiece::IsLegalMove(const Board& board, sf::Vector2i position, bool bIsBlack)

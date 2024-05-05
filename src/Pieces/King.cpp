@@ -4,7 +4,7 @@
 
 #include "King.h"
 
-King::King(sf::Vector2i position, bool bIsBlack, const std::shared_ptr<Rook>& LeftRook, const std::shared_ptr<Rook>& RightRook) : ChessPiece(position, bIsBlack), m_bHasMoved(false)
+King::King(sf::Vector2i position, bool bIsBlack, const std::shared_ptr<Rook>& LeftRook, const std::shared_ptr<Rook>& RightRook) : ChessPiece(position, bIsBlack)
 {
     m_pieceType = bIsBlack ? BLACK_KING : WHITE_KING;
     setTexture(bIsBlack ? System::BK_Texture : System::WK_Texture);
@@ -58,10 +58,7 @@ int King::AttemptMove(ChessBoard &board, sf::Vector2i position)
         p_leftRook->AttemptMove(board, sf::Vector2i(position.x+1, position.y));
     }
 
-    if(result)
-    {
-        m_bHasMoved = true;
-    }
+
     return result;
 }
 
@@ -82,4 +79,5 @@ bool King::CanCastle(const Board &board, bool rightCastling)
 
     return true;
 }
+
 

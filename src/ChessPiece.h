@@ -16,6 +16,7 @@ class ChessPiece : public sf::Sprite {
 
 protected:
     bool m_bIsBlack;
+    bool m_bHasMoved;
     PieceType m_pieceType;
     sf::Vector2i m_position;
     std::vector<sf::Vector2i> m_possibleMoves;
@@ -28,7 +29,8 @@ public:
     void SetOriginToCenterOfTexture();
 
     virtual int AttemptMove(ChessBoard& board, sf::Vector2i position);
-
+    void SetPiece(sf::Vector2i position);
+    void SetHasMoved();
     virtual void CalculatePossibleMoves(const Board& board) = 0;
     int IsLegalMove(const Board& board, sf::Vector2i position, bool bIsBlack);
 

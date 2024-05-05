@@ -12,7 +12,6 @@
 
 class King : public ChessPiece{
 
-    bool m_bHasMoved;
     std::shared_ptr<Rook> p_leftRook;
     std::shared_ptr<Rook> p_rightRook;
 public:
