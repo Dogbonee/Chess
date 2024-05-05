@@ -29,6 +29,9 @@ void ChessPiece::SetOriginToCenterOfTexture()
 
 
 //Tries to move the piece to the specified location. Note that this function does nct call CalculatePossibleMoves on success.
+//returns 0 on illegal move
+//returns 1 on move to empty square
+//returns 2 on move to filled square
 int ChessPiece::AttemptMove(ChessBoard& board, sf::Vector2i position)
 {
     int result = 0;
@@ -108,5 +111,10 @@ bool ChessPiece::IsBlack()
 const sf::Vector2i & ChessPiece::GetBoardCoordinates()
 {
     return m_position;
+}
+
+PieceType ChessPiece::GetPieceType()
+{
+    return m_pieceType;
 }
 

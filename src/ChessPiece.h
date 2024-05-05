@@ -42,6 +42,7 @@ public:
     bool IsBlack();
 
     const sf::Vector2i& GetBoardCoordinates();
+    PieceType GetPieceType();
 
 };
 

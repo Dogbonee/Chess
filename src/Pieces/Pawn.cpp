@@ -6,7 +6,7 @@
 
 #include "../System.h"
 
-Pawn::Pawn(sf::Vector2i position, bool bIsBlack) : ChessPiece(position, bIsBlack), bIsFirstMove(true)
+Pawn::Pawn(sf::Vector2i position, bool bIsBlack) : ChessPiece(position, bIsBlack), m_bHasMoved(false)
 {
     m_pieceType = bIsBlack ? BLACK_PAWN : WHITE_PAWN;
     setTexture(bIsBlack ? System::BP_Texture : System::WP_Texture);
@@ -16,7 +16,7 @@ Pawn::Pawn(sf::Vector2i position, bool bIsBlack) : ChessPiece(position, bIsBlack
 void Pawn::CalculatePossibleMoves(const Board &board)
 {
     m_possibleMoves.clear();
-    for(int i = 1; i <= 1 + bIsFirstMove; i++){
+    for(int i = 1; i <= 1 + !m_bHasMoved; i++){
         int colorSwitch = m_bIsBlack ? i : -i;
         sf::Vector2i attemptedMove(m_position.x, m_position.y+colorSwitch);
         if(IsLegalMove(board, attemptedMove, m_bIsBlack) == 1)
@@ -42,7 +42,7 @@ int Pawn::AttemptMove(ChessBoard &board, sf::Vector2i position)
     int result = ChessPiece::AttemptMove(board, position);
     if(result)
     {
-        bIsFirstMove = false;
+        m_bHasMoved = true;
     }
     return result;
 }

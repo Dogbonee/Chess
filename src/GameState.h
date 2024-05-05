@@ -38,6 +38,8 @@ class GameState : public State{
     void DetermineCheckStatus();
     void CalculateBoardMoves();
 
+    void SyncVisualsWithBoard();
+
 public:
     GameState(StateMachine* p_sm, sf::RenderWindow* p_rw);
     ~GameState();

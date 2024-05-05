@@ -9,7 +9,7 @@
 
 class Pawn : public ChessPiece{
 
-    bool bIsFirstMove;
+    bool m_bHasMoved;
 
 public:
 
