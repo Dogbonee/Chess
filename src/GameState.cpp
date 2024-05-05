@@ -221,6 +221,7 @@ void GameState::ConfirmPiece(sf::Vector2i boardCoords)
     DetermineCheckStatus();
 
 
+
 }
 
 void GameState::CapturePiece(sf::Vector2i boordCoords)
@@ -264,6 +265,12 @@ void GameState::CalculateBoardMoves()
     for(const auto& piece : m_pieces)
     {
         piece->CalculatePossibleMoves(m_board.GetBoard());
+        if(piece->GetPossibleMoves().empty() && ((piece->GetPieceType() == BLACK_KING && m_bBlackIsChecked) || (piece->GetPieceType() == WHITE_KING && m_bWhiteIsChecked)))
+        {
+            Checkmate();
+        }
+
+
     }
 }
 
@@ -277,4 +284,9 @@ void GameState::SyncVisualsWithBoard()
         piece->GetBoardCoordinates().y * System::TILE_SIZE + System::TILE_SIZE/2);
         piece->MovePieceVisual(boardToScreenCoords);
     }
+}
+
+void GameState::Checkmate()
+{
+    std::cout<< (m_bIsBlackTurn ? "White" : "Black") << " has won the game!\n";
 }

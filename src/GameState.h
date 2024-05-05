@@ -40,6 +40,8 @@ class GameState : public State{
 
     void SyncVisualsWithBoard();
 
+    void Checkmate();
+
 public:
     GameState(StateMachine* p_sm, sf::RenderWindow* p_rw);
     ~GameState();
