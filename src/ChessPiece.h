@@ -30,13 +30,18 @@ public:
     virtual int AttemptMove(ChessBoard& board, sf::Vector2i position);
 
     virtual void CalculatePossibleMoves(const Board& board) = 0;
-    bool IsLegalMove(const Board& board, sf::Vector2i position, bool bIsBlack);
+    int IsLegalMove(const Board& board, sf::Vector2i position, bool bIsBlack);
 
     void PrintPossibleMoves();
 
     bool ManageCollision(sf::Vector2i mousePos);
     void MovePieceVisual(sf::Vector2i mousePos);
+
+    const std::vector<sf::Vector2i>& GetPossibleMoves();
     bool IsHovered() const;
+    bool IsBlack();
+
+    const sf::Vector2i& GetBoardCoordinates();
 
 };
 

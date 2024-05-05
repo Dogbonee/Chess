@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.28)
 project(Chess)
 
-set(SFML_DIR C:/StudentFiles/Student/SFML-2.6.1/lib/cmake/SFML)
+#set(SFML_DIR C:/StudentFiles/Student/SFML-2.6.1/lib/cmake/SFML)
 set(CMAKE_CXX_STANDARD 17)
 set(SOURCE_FILES src/main.cpp
         src/GameState.cpp

@@ -12,6 +12,7 @@ StateMachine::StateMachine() : m_window(sf::VideoMode(System::SCREEN_WIDTH, Syst
 {
     System::LoadResources();
     m_states.emplace_back(new GameState(this, &m_window));
+    m_window.setFramerateLimit(60);
     //m_window.setVisible(false);
 }
 
