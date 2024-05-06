@@ -9,13 +9,12 @@
 
 class Rook : public ChessPiece{
 
-    bool m_bHasMoved;
+
 
 public:
     Rook(sf::Vector2i position, bool bIsBlack);
     void CalculatePossibleMoves(const Board &board) override;
 
-    int AttemptMove(ChessBoard &board, sf::Vector2i position) override;
 
     bool HasMoved();
 

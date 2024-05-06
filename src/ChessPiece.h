@@ -32,6 +32,7 @@ public:
     void SetPiece(sf::Vector2i position);
     void SetHasMoved();
     virtual void CalculatePossibleMoves(const Board& board) = 0;
+    void ReplacePossibleMoves(const std::vector<sf::Vector2i>& moves);
     int IsLegalMove(const Board& board, sf::Vector2i position, bool bIsBlack);
 
     void PrintPossibleMoves();

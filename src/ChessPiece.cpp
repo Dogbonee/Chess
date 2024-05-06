@@ -60,6 +60,12 @@ void ChessPiece::SetHasMoved()
     m_bHasMoved = true;
 }
 
+
+void ChessPiece::ReplacePossibleMoves(const std::vector<sf::Vector2i> &moves)
+{
+    m_possibleMoves = moves;
+}
+
 int ChessPiece::IsLegalMove(const Board& board, sf::Vector2i position, bool bIsBlack)
 {
     try
