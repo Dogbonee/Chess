@@ -37,15 +37,6 @@ void Pawn::CalculatePossibleMoves(const Board &board)
 
 }
 
-int Pawn::AttemptMove(ChessBoard &board, sf::Vector2i position)
-{
-    int result = ChessPiece::AttemptMove(board, position);
-    if(result)
-    {
-        m_bHasMoved = true;
-    }
-    return result;
-}
 
 
 

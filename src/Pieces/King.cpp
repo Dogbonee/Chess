@@ -47,7 +47,6 @@ int King::AttemptMove(ChessBoard &board, sf::Vector2i position)
     auto lastPosition = m_position;
     int result = ChessPiece::AttemptMove(board, position);
 
-
     //Castling
     if(result == 1 && lastPosition.x + 2 == position.x)
     {
