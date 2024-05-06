@@ -6,7 +6,7 @@
 
 #include "../System.h"
 
-Pawn::Pawn(sf::Vector2i position, bool bIsBlack) : ChessPiece(position, bIsBlack), m_bHasMoved(false)
+Pawn::Pawn(sf::Vector2i position, bool bIsBlack) : ChessPiece(position, bIsBlack)
 {
     m_pieceType = bIsBlack ? BLACK_PAWN : WHITE_PAWN;
     setTexture(bIsBlack ? System::BP_Texture : System::WP_Texture);

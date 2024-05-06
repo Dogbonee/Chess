@@ -289,7 +289,7 @@ void GameState::CheckWinCondition()
     bool checkmate = true;
     for(const auto& piece : m_pieces)
     {
-
+        if(piece->IsBlack() != m_bIsBlackTurn)continue;
         p_activePiece = piece;
         if(!CullMoves().empty())
         {
@@ -297,6 +297,7 @@ void GameState::CheckWinCondition()
         }
     }
     if(checkmate) Checkmate();
+    p_activePiece = nullptr;
 }
 
 void GameState::Checkmate()

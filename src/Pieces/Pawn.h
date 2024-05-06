@@ -9,7 +9,6 @@
 
 class Pawn : public ChessPiece{
 
-    bool m_bHasMoved;
 
 public:
 

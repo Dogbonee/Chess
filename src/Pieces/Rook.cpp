@@ -4,7 +4,7 @@
 
 #include "Rook.h"
 
-Rook::Rook(sf::Vector2i position, bool bIsBlack) : ChessPiece(position, bIsBlack), m_bHasMoved(false)
+Rook::Rook(sf::Vector2i position, bool bIsBlack) : ChessPiece(position, bIsBlack)
 {
     m_pieceType = bIsBlack ? BLACK_ROOK : WHITE_ROOK;
     setTexture(bIsBlack ? System::BR_Texture : System::WR_Texture);
@@ -68,15 +68,6 @@ void Rook::CalculatePossibleMoves(const Board &board)
     }
 }
 
-int Rook::AttemptMove(ChessBoard &board, sf::Vector2i position)
-{
-    int result = ChessPiece::AttemptMove(board, position);
-    if(result)
-    {
-        m_bHasMoved = true;
-    }
-    return result;
-}
 
 bool Rook::HasMoved()
 {
