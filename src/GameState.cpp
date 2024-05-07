@@ -152,6 +152,15 @@ bool GameState::CheckSpot(sf::Vector2f position)
 
 std::vector<sf::Vector2i> GameState::CullMoves()
 {
+
+    auto revert = [this](auto tempBoard, auto tempPos)
+    {
+        m_board = tempBoard;
+        p_activePiece->SetPiece(tempPos);
+        CalculateBoardMoves();
+        DetermineCheckStatus();
+    };
+
     HandlePieceMovement();
     std::vector<sf::Vector2i> culledMoves;
     auto tempBoard = m_board;
@@ -166,18 +175,21 @@ std::vector<sf::Vector2i> GameState::CullMoves()
     {
         if(p_activePiece->GetPieceType() == BLACK_KING || p_activePiece->GetPieceType() == WHITE_KING)
         {
+
             auto kingMove = move.x - p_activePiece->GetBoardCoordinates().x;
             if(abs(kingMove) == 2)
             {
+                if((m_bWhiteIsChecked && !m_bIsBlackTurn) || (m_bBlackIsChecked && m_bIsBlackTurn))
+                {
+                    revert(tempBoard, tempPos);
+                    continue;
+                }
                 p_activePiece->AttemptMove(m_board, sf::Vector2i(p_activePiece->GetBoardCoordinates().x + kingMove/2, p_activePiece->GetBoardCoordinates().y));
                 CalculateBoardMoves();
                 DetermineCheckStatus();
                 if((m_bWhiteIsChecked && !m_bIsBlackTurn) || (m_bBlackIsChecked && m_bIsBlackTurn))
                 {
-                    m_board = tempBoard;
-                    p_activePiece->SetPiece(tempPos);
-                    CalculateBoardMoves();
-                    DetermineCheckStatus();
+                    revert(tempBoard, tempPos);
                     continue;
                 }
             }
@@ -195,10 +207,7 @@ std::vector<sf::Vector2i> GameState::CullMoves()
         {
             culledMoves.emplace_back(move);
         }
-        m_board = tempBoard;
-        p_activePiece->SetPiece(tempPos);
-        CalculateBoardMoves();
-        DetermineCheckStatus();
+        revert(tempBoard, tempPos);
     }
     return culledMoves;
 
