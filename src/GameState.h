@@ -9,6 +9,7 @@
 #include <memory>
 #include "ChessBoard.h"
 #include "ChessPiece.h"
+#include "PromotionUI.h"
 #include "Pieces/Pawn.h"
 #include "State.h"
 
@@ -22,15 +23,21 @@ class GameState : public State{
 
     ChessBoard m_board;
     std::vector<std::shared_ptr<ChessPiece>> m_pieces;
-
     std::shared_ptr<ChessPiece> p_activePiece;
     sf::Vector2f m_lastPieceCoords;
 
-    bool m_bIsBlackTurn;
 
+    bool m_bIsWhitePromoting;
+    bool m_bIsBlackPromoting;
+    PromotionUI m_whitePromotion;
+    PromotionUI m_blackPromotion;
+    bool ShouldPromote();
+    void PromotePiece(PieceType promotionType);
+    bool m_bIsBlackTurn;
     bool m_bWhiteIsChecked;
     bool m_bBlackIsChecked;
 
+    void DoTurn();
     void DragPiece(sf::Vector2i position);
     bool CheckSpot(sf::Vector2f position);
     std::vector<sf::Vector2i> CullMoves();
