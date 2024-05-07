@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.28)
 project(Chess)
 
-#set(SFML_DIR C:/StudentFiles/Student/SFML-2.6.1/lib/cmake/SFML)
+set(SFML_DIR C:/StudentFiles/Student/SFML-2.6.1/lib/cmake/SFML)
 set(CMAKE_CXX_STANDARD 17)
 set(SOURCE_FILES src/main.cpp
         src/GameState.cpp
@@ -27,7 +27,9 @@ set(SOURCE_FILES src/main.cpp
         src/Pieces/King.cpp
         src/Pieces/King.h
         src/System.cpp
-        src/System.h)
+        src/System.h
+        src/PromotionUI.cpp
+        src/PromotionUI.h)
 set(SFML_STATIC_LIBRARIES true)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})

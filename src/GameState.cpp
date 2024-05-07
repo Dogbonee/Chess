@@ -11,7 +11,8 @@
 #include "Pieces/Rook.h"
 
 
-GameState::GameState(StateMachine* p_sm, sf::RenderWindow* p_rw) : State(p_sm, p_rw), m_bIsBlackTurn(false), m_bWhiteIsChecked(false), m_bBlackIsChecked(false){
+GameState::GameState(StateMachine* p_sm, sf::RenderWindow* p_rw) : State(p_sm, p_rw), m_bIsBlackTurn(false), m_bWhiteIsChecked(false), m_bBlackIsChecked(false),
+m_bIsWhitePromoting(false), m_bIsBlackPromoting(false), m_whitePromotion(false), m_blackPromotion(true){
 
     for(int y = 1; y <= 6; y+=5)
     {
@@ -38,6 +39,7 @@ GameState::GameState(StateMachine* p_sm, sf::RenderWindow* p_rw) : State(p_sm, p
     HandlePieceMovement();
     m_bIsBlackTurn = false;
 
+    m_whitePromotion.SetUIPosition(sf::Vector2f(100,0));
 }
 
 GameState::~GameState() = default;
@@ -63,6 +65,16 @@ void GameState::Render()
     {
         p_window->draw(*p_activePiece);
     }
+
+    if(m_bIsWhitePromoting)
+    {
+        p_window->draw(m_whitePromotion);
+    }
+    if(m_bIsBlackPromoting)
+    {
+        p_window->draw(m_blackPromotion);
+    }
+
     p_window->display();
 }
 
@@ -75,26 +87,37 @@ void GameState::HandleEvents()
             case sf::Event::Closed:
                 p_window->close();
             break;
-            case sf::Event::MouseMoved:
-
-                if(p_activePiece != nullptr)
+            case sf::Event::MouseMoved: {
+                sf::Vector2i mousePos(event.mouseMove.x, event.mouseMove.y);
+                if(p_activePiece != nullptr && !(m_bIsWhitePromoting || m_bIsBlackPromoting))
                 {
-                    DragPiece(sf::Vector2i(event.mouseMove.x, event.mouseMove.y));
+                    DragPiece(mousePos);
                     break;
                 }
 
                 if(std::any_of( m_pieces.begin(), m_pieces.end(),
-                    [event](auto& i){return i->ManageCollision(sf::Vector2i(event.mouseMove.x, event.mouseMove.y));}))
+                    [mousePos](auto& i){return i->ManageCollision(mousePos);})
+                    || (m_bIsWhitePromoting && m_whitePromotion.ManageCollision(mousePos))
+                    || (m_bIsBlackPromoting && m_blackPromotion.ManageCollision(mousePos)))
                 {
                     p_window->setMouseCursor(System::Hand_Cursor);
                 }else
                 {
                     p_window->setMouseCursor(System::Arrow_Cursor);
                 }
+            }
             break;
-            case sf::Event::MouseButtonPressed:
+            case sf::Event::MouseButtonPressed: {
+                sf::Vector2i mousePos(event.mouseButton.x, event.mouseButton.y);
                 if(event.mouseButton.button == sf::Mouse::Left)
                 {
+                    if(p_activePiece)
+                    {
+                        if(m_bIsWhitePromoting)
+                            PromotePiece(m_whitePromotion.ManageCollision(mousePos));
+                        else if(m_bIsBlackPromoting)
+                            PromotePiece(m_blackPromotion.ManageCollision(mousePos));
+                    }
                     for(const auto& i : m_pieces)
                     {
                         if(i->ManageCollision(sf::Vector2i(event.mouseButton.x, event.mouseButton.y)))
@@ -102,24 +125,112 @@ void GameState::HandleEvents()
                             p_activePiece = i;
                             m_lastPieceCoords = p_activePiece->getPosition();
                         }
+
                     }
                 }
+            }
             break;
             case sf::Event::MouseButtonReleased:
                 if(event.mouseButton.button == sf::Mouse::Left)
                 {
                     if(p_activePiece)
                     {
-                        CheckSpot(p_activePiece->getPosition());
-                        p_activePiece = nullptr;
+                        DoTurn();
                     }
                 }
             case sf::Event::KeyPressed:
 
                 HandleKeyboardInput(event.key.code);
             break;
+            default:
+                break;
         }
     }
+}
+
+bool GameState::ShouldPromote()
+{
+    if(p_activePiece->GetPieceType() == WHITE_PAWN && p_activePiece->GetBoardCoordinates().y == 0)
+    {
+        return true;
+    }
+    if(p_activePiece->GetPieceType() == BLACK_PAWN && p_activePiece->GetBoardCoordinates().y == 7)
+    {
+        return true;
+    }
+    return false;
+}
+
+void GameState::PromotePiece(PieceType promotionType)
+{
+    switch(promotionType)
+    {
+        case WHITE_KNIGHT:
+        m_pieces[std::distance(m_pieces.begin(), std::find(m_pieces.begin(), m_pieces.end(), p_activePiece))] =
+                std::make_shared<Knight>(p_activePiece->GetBoardCoordinates(), false);
+        break;
+        case WHITE_BISHOP:
+            m_pieces[std::distance(m_pieces.begin(), std::find(m_pieces.begin(), m_pieces.end(), p_activePiece))] =
+                    std::make_shared<Bishop>(p_activePiece->GetBoardCoordinates(), false);
+        break;
+        case WHITE_ROOK:
+            m_pieces[std::distance(m_pieces.begin(), std::find(m_pieces.begin(), m_pieces.end(), p_activePiece))] =
+                    std::make_shared<Rook>(p_activePiece->GetBoardCoordinates(), false);
+        break;
+        case WHITE_QUEEN:
+            m_pieces[std::distance(m_pieces.begin(), std::find(m_pieces.begin(), m_pieces.end(), p_activePiece))] =
+                    std::make_shared<Queen>(p_activePiece->GetBoardCoordinates(), false);
+        break;
+        case BLACK_KNIGHT:
+            m_pieces[std::distance(m_pieces.begin(), std::find(m_pieces.begin(), m_pieces.end(), p_activePiece))] =
+                    std::make_shared<Knight>(p_activePiece->GetBoardCoordinates(), true);
+        break;
+        case BLACK_BISHOP:
+            m_pieces[std::distance(m_pieces.begin(), std::find(m_pieces.begin(), m_pieces.end(), p_activePiece))] =
+                    std::make_shared<Bishop>(p_activePiece->GetBoardCoordinates(), true);
+        break;
+        case BLACK_ROOK:
+            m_pieces[std::distance(m_pieces.begin(), std::find(m_pieces.begin(), m_pieces.end(), p_activePiece))] =
+                    std::make_shared<Rook>(p_activePiece->GetBoardCoordinates(), true);
+        break;
+        case BLACK_QUEEN:
+            m_pieces[std::distance(m_pieces.begin(), std::find(m_pieces.begin(), m_pieces.end(), p_activePiece))] =
+                    std::make_shared<Queen>(p_activePiece->GetBoardCoordinates(), true);
+        break;
+
+        default:
+            break;
+
+
+    }
+    p_activePiece = nullptr;
+    m_bIsWhitePromoting = false;
+    m_bIsBlackPromoting = false;
+}
+
+void GameState::DoTurn()
+{
+
+    if(!(m_bIsWhitePromoting || m_bIsBlackPromoting))
+    {
+        CheckSpot(p_activePiece->getPosition());
+    }
+    if(ShouldPromote())
+    {
+        !m_bIsBlackTurn ? m_bIsBlackPromoting = true : m_bIsWhitePromoting = true;
+        if(m_bIsBlackPromoting)
+        {
+            m_blackPromotion.SetUIPosition(sf::Vector2f(p_activePiece->GetBoardCoordinates().x * System::TILE_SIZE + System::X_CENTER_OFFSET - System::TILE_SIZE/4, System::SCREEN_HEIGHT-System::TILE_SIZE*3/2));
+        }
+        if(m_bIsWhitePromoting)
+        {
+            m_whitePromotion.SetUIPosition(sf::Vector2f(p_activePiece->GetBoardCoordinates().x * System::TILE_SIZE + System::X_CENTER_OFFSET - System::TILE_SIZE/4, 0));
+        }
+    }else
+    {
+        p_activePiece = nullptr;
+    }
+
 }
 
 void GameState::DragPiece(sf::Vector2i position)
@@ -221,17 +332,10 @@ void GameState::ConfirmPiece(sf::Vector2i boardCoords)
     p_activePiece->SetHasMoved();
 
     SyncVisualsWithBoard(); //TODO: Only move active piece and castling piece
-    /*
-    sf::Vector2i boardToScreenCoords(boardCoords.x * System::TILE_SIZE + System::X_CENTER_OFFSET + System::TILE_SIZE/2,
-        boardCoords.y * System::TILE_SIZE + System::TILE_SIZE/2);
-    if(p_activePiece)
-    {
-        p_activePiece->MovePieceVisual(boardToScreenCoords);
-    }
-    */
     HandlePieceMovement();
     m_bIsBlackTurn = !m_bIsBlackTurn;
     CheckWinCondition();
+
 }
 
 void GameState::CapturePiece(sf::Vector2i boordCoords)
@@ -302,18 +406,25 @@ void GameState::SyncVisualsWithBoard()
 
 void GameState::CheckWinCondition()
 {
+    auto tempActivePiecePtr = p_activePiece;
     bool checkmate = true;
     for(const auto& piece : m_pieces)
     {
-        if(piece->IsBlack() != m_bIsBlackTurn)continue;
+        if(piece->IsBlack() != m_bIsBlackTurn)
+        {
+            continue;
+        }
         p_activePiece = piece;
         if(!CullMoves().empty())
         {
             checkmate = false;
         }
     }
-    if(checkmate) Checkmate();
-    p_activePiece = nullptr;
+    if(checkmate)
+    {
+        Checkmate();
+    }
+    p_activePiece = tempActivePiecePtr;
 }
 
 void GameState::Checkmate()
