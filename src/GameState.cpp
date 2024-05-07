@@ -54,7 +54,14 @@ void GameState::Render()
     p_window->draw(m_board);
     for(const auto& i : m_pieces)
     {
-        p_window->draw(*i);
+        if(p_activePiece != i)
+        {
+            p_window->draw(*i);
+        }
+    }
+    if(p_activePiece)
+    {
+        p_window->draw(*p_activePiece);
     }
     p_window->display();
 }
