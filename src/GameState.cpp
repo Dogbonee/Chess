@@ -38,8 +38,7 @@ m_bIsWhitePromoting(false), m_bIsBlackPromoting(false), m_whitePromotion(false),
 
     HandlePieceMovement();
     m_bIsBlackTurn = false;
-
-    m_whitePromotion.SetUIPosition(sf::Vector2f(100,0));
+    
 }
 
 GameState::~GameState() = default;
