@@ -60,6 +60,10 @@ void GameState::Render()
             p_window->draw(*i);
         }
     }
+    for(const auto& move : m_legalMoveVisuals)
+    {
+        p_window->draw(move);
+    }
     if(p_activePiece)
     {
         p_window->draw(*p_activePiece);
@@ -73,6 +77,8 @@ void GameState::Render()
     {
         p_window->draw(m_blackPromotion);
     }
+
+
 
     p_window->display();
 }
@@ -123,6 +129,10 @@ void GameState::HandleEvents()
                         {
                             p_activePiece = i;
                             m_lastPieceCoords = p_activePiece->getPosition();
+                            auto moves = CullMoves();
+                            p_activePiece->ReplacePossibleMoves(moves);
+                            GenerateMoveVisuals(moves);
+                            break;
                         }
 
                     }
@@ -134,6 +144,7 @@ void GameState::HandleEvents()
                 {
                     if(p_activePiece)
                     {
+
                         DoTurn();
                     }
                 }
@@ -244,8 +255,7 @@ bool GameState::CheckSpot(sf::Vector2f position)
 {
 
     sf::Vector2i screenToBoordCoordinates((position.x - System::X_CENTER_OFFSET) / System::TILE_SIZE, position.y / System::TILE_SIZE);
-    auto moves = CullMoves();
-    p_activePiece->ReplacePossibleMoves(moves);
+    auto moves = p_activePiece->GetPossibleMoves();
     if(std::find(moves.begin(), moves.end(), screenToBoordCoordinates) != moves.end())
     {
 
@@ -324,6 +334,19 @@ std::vector<sf::Vector2i> GameState::CullMoves()
 
 }
 
+void GameState::GenerateMoveVisuals(std::vector<sf::Vector2i> legalMoves)
+{
+    m_legalMoveVisuals.clear();
+    for(const auto& move : legalMoves)
+    {
+        sf::CircleShape moveVisual(10);
+        moveVisual.setOrigin(moveVisual.getRadius(), moveVisual.getRadius());
+        moveVisual.setPosition(move.x * System::TILE_SIZE + System::X_CENTER_OFFSET + System::TILE_SIZE/2, move.y * System::TILE_SIZE + System::TILE_SIZE/2);
+        moveVisual.setFillColor(sf::Color(135,206,250, 200));
+        m_legalMoveVisuals.emplace_back(moveVisual);
+    }
+
+}
 
 
 void GameState::ConfirmPiece(sf::Vector2i boardCoords)
@@ -332,6 +355,7 @@ void GameState::ConfirmPiece(sf::Vector2i boardCoords)
 
     SyncVisualsWithBoard(); //TODO: Only move active piece and castling piece
     HandlePieceMovement();
+    m_legalMoveVisuals.clear();
     m_bIsBlackTurn = !m_bIsBlackTurn;
     CheckWinCondition();
 
