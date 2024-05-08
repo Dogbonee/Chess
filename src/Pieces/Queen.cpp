@@ -4,6 +4,8 @@
 
 #include "Queen.h"
 
+#include <memory>
+
 Queen::Queen(sf::Vector2i position, bool bIsBlack) : ChessPiece(position, bIsBlack)
 {
     m_pieceType = bIsBlack ? BLACK_QUEEN : WHITE_QUEEN;
@@ -125,5 +127,10 @@ void Queen::CalculatePossibleMoves(const Board &board)
         }else break;
     }
 
+}
+
+std::shared_ptr<ChessPiece> Queen::clone()
+{
+    return std::make_shared<Queen>(*this);
 }
 

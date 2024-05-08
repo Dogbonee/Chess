@@ -79,4 +79,9 @@ bool King::CanCastle(const Board &board, bool rightCastling)
     return true;
 }
 
+std::shared_ptr<ChessPiece> King::clone()
+{
+    return std::make_shared<King>(*this);
+}
+
 

@@ -19,11 +19,8 @@
 class GameState : public State{
 
     struct Move {
-        std::shared_ptr<ChessPiece> Piece;
         std::vector<std::shared_ptr<ChessPiece>> StartPieces;
         std::vector<std::shared_ptr<ChessPiece>> EndPieces;
-        sf::Vector2i PieceStart;
-        sf::Vector2i PieceEnd;
     };
 
     void Update() override;
@@ -35,9 +32,8 @@ class GameState : public State{
 
     ChessBoard m_board;
     std::vector<std::shared_ptr<ChessPiece>> m_pieces;
-    std::vector<Move> m_moves;
-    sf::Vector2i m_attemptedPosition;
     std::vector<std::shared_ptr<ChessPiece>> m_tempPieces;
+    std::vector<Move> m_moves;
     std::vector<MoveVisual> m_legalMoveVisuals;
     std::shared_ptr<ChessPiece> p_dragPiece;
     std::shared_ptr<ChessPiece> p_activePiece;
@@ -72,6 +68,7 @@ class GameState : public State{
     void CheckWinCondition();
     void Checkmate();
 
+    std::vector<std::shared_ptr<ChessPiece>> CopyPieces();
 public:
     GameState(StateMachine* p_sm, sf::RenderWindow* p_rw);
     ~GameState();

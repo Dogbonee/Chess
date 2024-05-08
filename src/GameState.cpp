@@ -190,19 +190,21 @@ void GameState::HandleKeyboardInput(sf::Keyboard::Key key)
         case sf::Keyboard::Left:
             if(m_currentMoveCounter > 0)
             {
+                p_activePiece = nullptr;
                 m_legalMoveVisuals.clear();
                 m_currentMoveCounter--;
-                ForceMove(m_moves[m_currentMoveCounter].Piece, m_moves[m_currentMoveCounter].PieceStart);
                 m_pieces = m_moves[m_currentMoveCounter].StartPieces;
+                SyncVisualsWithBoard();
             }
             break;
         case sf::Keyboard::Right:
             if(m_currentMoveCounter < m_moves.size())
             {
+                p_activePiece = nullptr;
                 m_legalMoveVisuals.clear();
-                ForceMove(m_moves[m_currentMoveCounter].Piece, m_moves[m_currentMoveCounter].PieceEnd);
                 m_pieces = m_moves[m_currentMoveCounter].EndPieces;
                 m_currentMoveCounter++;
+                SyncVisualsWithBoard();
             }
         break;
     }
@@ -289,14 +291,13 @@ void GameState::DragPiece(sf::Vector2i position)
 
 bool GameState::CheckSpot(sf::Vector2i position)
 {
+    m_tempPieces = CopyPieces();
     if(m_moveCounter != m_currentMoveCounter)
     {
         p_activePiece->MovePieceVisual(sf::Vector2i(m_lastPieceCoords));
         return false;
     }
 
-    m_tempPieces = m_pieces;
-    m_attemptedPosition = p_activePiece->GetBoardCoordinates();
     auto moves = p_activePiece->GetPossibleMoves();
     if(std::find(moves.begin(), moves.end(), position) != moves.end())
     {
@@ -388,17 +389,13 @@ void GameState::GenerateMoveVisuals(std::vector<sf::Vector2i> legalMoves)
 
 }
 
-
 void GameState::ConfirmPiece(sf::Vector2i boardCoords)
 {
     m_moveCounter++;
     m_currentMoveCounter++;
     Move move;
-    move.Piece = p_activePiece;
-    move.PieceStart = m_attemptedPosition;
-    move.PieceEnd = boardCoords;
     move.StartPieces = m_tempPieces;
-    move.EndPieces = m_pieces;
+    move.EndPieces = CopyPieces();
     m_moves.emplace_back(move);
 
     p_activePiece->SetHasMoved();
@@ -521,4 +518,15 @@ void GameState::CheckWinCondition()
 void GameState::Checkmate()
 {
     std::cout<< (m_bIsBlackTurn ? "White" : "Black") << " has won the game!\n";
+}
+
+std::vector<std::shared_ptr<ChessPiece>> GameState::CopyPieces()
+{
+    std::vector<std::shared_ptr<ChessPiece>> piecesCopy;
+    piecesCopy.reserve(m_pieces.size());
+    for(const auto& ptr : m_pieces)
+    {
+        piecesCopy.push_back(ptr->clone());
+    }
+    return piecesCopy;
 }

@@ -18,7 +18,7 @@ public:
 
     bool HasMoved();
 
-
+    std::shared_ptr<ChessPiece> clone() override;
 };
 
 

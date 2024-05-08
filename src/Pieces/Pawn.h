@@ -15,6 +15,7 @@ public:
     Pawn(sf::Vector2i position, bool bIsBlack);
     void CalculatePossibleMoves(const Board& board) override;
 
+    std::shared_ptr<ChessPiece> clone() override;
 };
 
 
