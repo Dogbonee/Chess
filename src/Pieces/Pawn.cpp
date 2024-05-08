@@ -23,16 +23,19 @@ void Pawn::CalculatePossibleMoves(const Board &board)
         {
             m_possibleMoves.emplace_back(attemptedMove);
         }
-        attemptedMove.x--;
-        if(IsLegalMove(board, attemptedMove, m_bIsBlack) == 2)
-        {
-            m_possibleMoves.emplace_back(attemptedMove);
-        }
-        attemptedMove.x += 2;
-        if(IsLegalMove(board, attemptedMove, m_bIsBlack) == 2)
-        {
-            m_possibleMoves.emplace_back(attemptedMove);
-        }
+
+    }
+    int colorSwitch = m_bIsBlack ? 1 : -1;
+    sf::Vector2i attemptedMove(m_position.x, m_position.y+colorSwitch);
+    attemptedMove.x--;
+    if(IsLegalMove(board, attemptedMove, m_bIsBlack) == 2)
+    {
+        m_possibleMoves.emplace_back(attemptedMove);
+    }
+    attemptedMove.x += 2;
+    if(IsLegalMove(board, attemptedMove, m_bIsBlack) == 2)
+    {
+        m_possibleMoves.emplace_back(attemptedMove);
     }
 
 }
