@@ -9,6 +9,7 @@
 #include <memory>
 #include "ChessBoard.h"
 #include "ChessPiece.h"
+#include "MoveVisual.h"
 #include "PromotionUI.h"
 #include "Pieces/Pawn.h"
 #include "State.h"
@@ -23,7 +24,8 @@ class GameState : public State{
 
     ChessBoard m_board;
     std::vector<std::shared_ptr<ChessPiece>> m_pieces;
-    std::vector<sf::CircleShape> m_legalMoveVisuals;
+    std::vector<MoveVisual> m_legalMoveVisuals;
+    std::shared_ptr<ChessPiece> p_dragPiece;
     std::shared_ptr<ChessPiece> p_activePiece;
     sf::Vector2f m_lastPieceCoords;
 
@@ -40,7 +42,7 @@ class GameState : public State{
 
     void DoTurn();
     void DragPiece(sf::Vector2i position);
-    bool CheckSpot(sf::Vector2f position);
+    bool CheckSpot(sf::Vector2i position);
     std::vector<sf::Vector2i> CullMoves();
     void GenerateMoveVisuals(std::vector<sf::Vector2i> legalMoves);
     void ConfirmPiece(sf::Vector2i boardCoords);

@@ -94,7 +94,7 @@ void GameState::HandleEvents()
             break;
             case sf::Event::MouseMoved: {
                 sf::Vector2i mousePos(event.mouseMove.x, event.mouseMove.y);
-                if(p_activePiece != nullptr && !(m_bIsWhitePromoting || m_bIsBlackPromoting))
+                if(p_dragPiece != nullptr && !(m_bIsWhitePromoting || m_bIsBlackPromoting))
                 {
                     DragPiece(mousePos);
                     break;
@@ -102,6 +102,8 @@ void GameState::HandleEvents()
 
                 if(std::any_of( m_pieces.begin(), m_pieces.end(),
                     [mousePos](auto& i){return i->ManageCollision(mousePos);})
+                    || std::any_of(m_legalMoveVisuals.begin(), m_legalMoveVisuals.end(),
+                        [mousePos](auto& i){return i.IsOverlapping(mousePos);})
                     || (m_bIsWhitePromoting && m_whitePromotion.ManageCollision(mousePos))
                     || (m_bIsBlackPromoting && m_blackPromotion.ManageCollision(mousePos)))
                 {
@@ -122,12 +124,18 @@ void GameState::HandleEvents()
                             PromotePiece(m_whitePromotion.ManageCollision(mousePos));
                         else if(m_bIsBlackPromoting)
                             PromotePiece(m_blackPromotion.ManageCollision(mousePos));
+
+
                     }
+
                     for(const auto& i : m_pieces)
                     {
                         if(i->ManageCollision(sf::Vector2i(event.mouseButton.x, event.mouseButton.y)))
                         {
+                            if(std::any_of(m_legalMoveVisuals.begin(), m_legalMoveVisuals.end(),[mousePos](auto& visual)
+                                {return visual.IsOverlapping(mousePos);}))break;
                             p_activePiece = i;
+                            p_dragPiece = i;
                             m_lastPieceCoords = p_activePiece->getPosition();
                             auto moves = CullMoves();
                             p_activePiece->ReplacePossibleMoves(moves);
@@ -136,16 +144,31 @@ void GameState::HandleEvents()
                         }
 
                     }
+
                 }
             }
             break;
             case sf::Event::MouseButtonReleased:
                 if(event.mouseButton.button == sf::Mouse::Left)
                 {
+                    sf::Vector2i mousePos(event.mouseButton.x, event.mouseButton.y);
                     if(p_activePiece)
                     {
+                        bool hasMoved = false;
+                        for(auto& i : m_legalMoveVisuals)
+                        {
 
-                        DoTurn();
+                            if(i.IsOverlapping(mousePos))
+                            {
+                                CheckSpot(i.GetBoardCoordinates());
+                                hasMoved = true;
+                                break;
+                            }
+                        }if(!hasMoved)
+                        {
+                            DoTurn();
+                        }
+                        p_dragPiece = nullptr;
                     }
                 }
             case sf::Event::KeyPressed:
@@ -213,6 +236,7 @@ void GameState::PromotePiece(PieceType promotionType)
 
 
     }
+    p_dragPiece = nullptr;
     p_activePiece = nullptr;
     m_bIsWhitePromoting = false;
     m_bIsBlackPromoting = false;
@@ -223,47 +247,32 @@ void GameState::DoTurn()
 
     if(!(m_bIsWhitePromoting || m_bIsBlackPromoting))
     {
-        CheckSpot(p_activePiece->getPosition());
+        auto screenPosition = p_activePiece->getPosition();
+        sf::Vector2i screenToBoordCoordinates((screenPosition.x - System::X_CENTER_OFFSET) / System::TILE_SIZE, screenPosition.y / System::TILE_SIZE);
+        CheckSpot(screenToBoordCoordinates);
     }
-    if(ShouldPromote())
-    {
-        !m_bIsBlackTurn ? m_bIsBlackPromoting = true : m_bIsWhitePromoting = true;
-        if(m_bIsBlackPromoting)
-        {
-            m_blackPromotion.SetUIPosition(sf::Vector2f(p_activePiece->GetBoardCoordinates().x * System::TILE_SIZE + System::X_CENTER_OFFSET - System::TILE_SIZE/4, System::SCREEN_HEIGHT-System::TILE_SIZE*3/2));
-        }
-        if(m_bIsWhitePromoting)
-        {
-            m_whitePromotion.SetUIPosition(sf::Vector2f(p_activePiece->GetBoardCoordinates().x * System::TILE_SIZE + System::X_CENTER_OFFSET - System::TILE_SIZE/4, 0));
-        }
-    }else
-    {
-        p_activePiece = nullptr;
-    }
+
 
 }
 
 void GameState::DragPiece(sf::Vector2i position)
 {
-    if(p_activePiece)
-    {
-        p_activePiece->MovePieceVisual(position);
-    }
+    p_dragPiece->MovePieceVisual(position);
 }
 
-bool GameState::CheckSpot(sf::Vector2f position)
+bool GameState::CheckSpot(sf::Vector2i position)
 {
 
-    sf::Vector2i screenToBoordCoordinates((position.x - System::X_CENTER_OFFSET) / System::TILE_SIZE, position.y / System::TILE_SIZE);
+
     auto moves = p_activePiece->GetPossibleMoves();
-    if(std::find(moves.begin(), moves.end(), screenToBoordCoordinates) != moves.end())
+    if(std::find(moves.begin(), moves.end(), position) != moves.end())
     {
 
-        if(p_activePiece->AttemptMove(m_board, screenToBoordCoordinates) == 2)
+        if(p_activePiece->AttemptMove(m_board, position) == 2)
         {
-            CapturePiece(screenToBoordCoordinates);
+            CapturePiece(position);
         }
-        ConfirmPiece(screenToBoordCoordinates);
+        ConfirmPiece(position);
         return true;
     }
     p_activePiece->MovePieceVisual(sf::Vector2i(m_lastPieceCoords));
@@ -339,11 +348,7 @@ void GameState::GenerateMoveVisuals(std::vector<sf::Vector2i> legalMoves)
     m_legalMoveVisuals.clear();
     for(const auto& move : legalMoves)
     {
-        sf::CircleShape moveVisual(10);
-        moveVisual.setOrigin(moveVisual.getRadius(), moveVisual.getRadius());
-        moveVisual.setPosition(move.x * System::TILE_SIZE + System::X_CENTER_OFFSET + System::TILE_SIZE/2, move.y * System::TILE_SIZE + System::TILE_SIZE/2);
-        moveVisual.setFillColor(sf::Color(135,206,250, 200));
-        m_legalMoveVisuals.emplace_back(moveVisual);
+        m_legalMoveVisuals.emplace_back(move);
     }
 
 }
@@ -358,6 +363,19 @@ void GameState::ConfirmPiece(sf::Vector2i boardCoords)
     m_legalMoveVisuals.clear();
     m_bIsBlackTurn = !m_bIsBlackTurn;
     CheckWinCondition();
+
+    if(ShouldPromote())
+    {
+        !m_bIsBlackTurn ? m_bIsBlackPromoting = true : m_bIsWhitePromoting = true;
+        if(m_bIsBlackPromoting)
+        {
+            m_blackPromotion.SetUIPosition(sf::Vector2f(p_activePiece->GetBoardCoordinates().x * System::TILE_SIZE + System::X_CENTER_OFFSET - System::TILE_SIZE/4, System::SCREEN_HEIGHT-System::TILE_SIZE*3/2));
+        }
+        if(m_bIsWhitePromoting)
+        {
+            m_whitePromotion.SetUIPosition(sf::Vector2f(p_activePiece->GetBoardCoordinates().x * System::TILE_SIZE + System::X_CENTER_OFFSET - System::TILE_SIZE/4, 0));
+        }
+    }
 
 }
 

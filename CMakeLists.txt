@@ -29,7 +29,9 @@ set(SOURCE_FILES src/main.cpp
         src/System.cpp
         src/System.h
         src/PromotionUI.cpp
-        src/PromotionUI.h)
+        src/PromotionUI.h
+        src/MoveVisual.cpp
+        src/MoveVisual.h)
 set(SFML_STATIC_LIBRARIES true)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
