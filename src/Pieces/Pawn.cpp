@@ -22,6 +22,9 @@ void Pawn::CalculatePossibleMoves(const Board &board)
         if(IsLegalMove(board, attemptedMove, m_bIsBlack) == 1)
         {
             m_possibleMoves.emplace_back(attemptedMove);
+        }else
+        {
+            break;
         }
 
     }
