@@ -21,6 +21,7 @@ public:
     int AttemptMove(ChessBoard &board, sf::Vector2i position) override;
     bool CanCastle(const Board &board, bool rightCastling);
 
+    std::shared_ptr<ChessPiece> clone() override;
 };
 
 

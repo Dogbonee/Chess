@@ -43,6 +43,11 @@ void Pawn::CalculatePossibleMoves(const Board &board)
 
 }
 
+std::shared_ptr<ChessPiece> Pawn::clone()
+{
+    return std::make_shared<Pawn>(*this);
+}
+
 
 
 

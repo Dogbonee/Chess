@@ -29,4 +29,9 @@ void Knight::CalculatePossibleMoves(const Board &board)
     }
 }
 
+std::shared_ptr<ChessPiece> Knight::clone()
+{
+    return std::make_shared<Knight>(*this);
+}
+
 

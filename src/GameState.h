@@ -14,22 +14,33 @@
 #include "Pieces/Pawn.h"
 #include "State.h"
 
+
+
 class GameState : public State{
+
+    struct Move {
+        std::vector<std::shared_ptr<ChessPiece>> StartPieces;
+        std::vector<std::shared_ptr<ChessPiece>> EndPieces;
+    };
 
     void Update() override;
     void Render() override;
     void HandleEvents() override;
+    void HandleKeyboardInput(sf::Keyboard::Key key) override;
 
 
 
     ChessBoard m_board;
     std::vector<std::shared_ptr<ChessPiece>> m_pieces;
+    std::vector<std::shared_ptr<ChessPiece>> m_tempPieces;
+    std::vector<Move> m_moves;
     std::vector<MoveVisual> m_legalMoveVisuals;
     std::shared_ptr<ChessPiece> p_dragPiece;
     std::shared_ptr<ChessPiece> p_activePiece;
     sf::Vector2f m_lastPieceCoords;
 
-
+    int m_moveCounter;
+    int m_currentMoveCounter;
     bool m_bIsWhitePromoting;
     bool m_bIsBlackPromoting;
     PromotionUI m_whitePromotion;
@@ -48,6 +59,7 @@ class GameState : public State{
     void ConfirmPiece(sf::Vector2i boardCoords);
     void CapturePiece(sf::Vector2i boordCoords);
     void DetermineCheckStatus(sf::Vector2i exceptionBoardCoords = sf::Vector2i(-1,-1));
+    void ForceMove(std::shared_ptr<ChessPiece> p_piece, sf::Vector2i position);
     void CalculateBoardMoves();
     void HandlePieceMovement();
 
@@ -56,6 +68,7 @@ class GameState : public State{
     void CheckWinCondition();
     void Checkmate();
 
+    std::vector<std::shared_ptr<ChessPiece>> CopyPieces();
 public:
     GameState(StateMachine* p_sm, sf::RenderWindow* p_rw);
     ~GameState();

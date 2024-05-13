@@ -14,6 +14,7 @@ public:
 
     void CalculatePossibleMoves(const Board &board) override;
 
+    std::shared_ptr<ChessPiece> clone() override;
 };
 
 

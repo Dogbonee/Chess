@@ -72,3 +72,8 @@ void Bishop::CalculatePossibleMoves(const Board &board)
 
 }
 
+std::shared_ptr<ChessPiece> Bishop::clone()
+{
+    return std::make_shared<Bishop>(*this);
+}
+

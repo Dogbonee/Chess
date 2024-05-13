@@ -74,4 +74,9 @@ bool Rook::HasMoved()
     return m_bHasMoved;
 }
 
+std::shared_ptr<ChessPiece> Rook::clone()
+{
+    return std::make_shared<Rook>(*this);
+}
+
 

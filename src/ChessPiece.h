@@ -7,6 +7,8 @@
 #include <SFML/System/Vector2.hpp>
 #include <vector>
 #include <algorithm>
+#include <memory>
+
 #include "ChessBoard.h"
 #include "System.h"
 
@@ -46,6 +48,8 @@ public:
 
     const sf::Vector2i& GetBoardCoordinates();
     PieceType GetPieceType();
+
+    virtual std::shared_ptr<ChessPiece> clone() = 0;
 
 };
 
