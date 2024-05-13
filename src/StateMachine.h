@@ -11,7 +11,8 @@
 //When you want to create a new state, make sure you append this enum
 enum STATES
 {
-    DEFAULT_STATE = 0
+    LOCAL_CHESS_STATE = 0,
+    MULTIPLAYER_CHESS_STATE
 };
 
 class StateMachine {

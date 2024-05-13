@@ -5,6 +5,7 @@
 #ifndef PROGRAM_H
 #define PROGRAM_H
 #include <SFML/Graphics.hpp>
+#include <SFML/Network.hpp>
 #include <iostream>
 #include <memory>
 #include "ChessBoard.h"
@@ -16,12 +17,17 @@
 
 
 
-class GameState : public State{
+class ChessState : public State{
+
+
+protected:
 
     struct Move {
         std::vector<std::shared_ptr<ChessPiece>> StartPieces;
         std::vector<std::shared_ptr<ChessPiece>> EndPieces;
     };
+
+
 
     void Update() override;
     void Render() override;
@@ -33,6 +39,7 @@ class GameState : public State{
     ChessBoard m_board;
     std::vector<std::shared_ptr<ChessPiece>> m_pieces;
     std::vector<std::shared_ptr<ChessPiece>> m_tempPieces;
+    sf::Vector2i m_pieceStartingPosition;
     std::vector<Move> m_moves;
     std::vector<MoveVisual> m_legalMoveVisuals;
     std::shared_ptr<ChessPiece> p_dragPiece;
@@ -48,6 +55,7 @@ class GameState : public State{
     bool ShouldPromote();
     void PromotePiece(PieceType promotionType);
     bool m_bIsBlackTurn;
+
     bool m_bWhiteIsChecked;
     bool m_bBlackIsChecked;
 
@@ -56,7 +64,7 @@ class GameState : public State{
     bool CheckSpot(sf::Vector2i position);
     std::vector<sf::Vector2i> CullMoves();
     void GenerateMoveVisuals(std::vector<sf::Vector2i> legalMoves);
-    void ConfirmPiece(sf::Vector2i boardCoords);
+    virtual void ConfirmPiece(sf::Vector2i boardCoords);
     void CapturePiece(sf::Vector2i boordCoords);
     void DetermineCheckStatus(sf::Vector2i exceptionBoardCoords = sf::Vector2i(-1,-1));
     void ForceMove(std::shared_ptr<ChessPiece> p_piece, sf::Vector2i position);
@@ -69,9 +77,13 @@ class GameState : public State{
     void Checkmate();
 
     std::vector<std::shared_ptr<ChessPiece>> CopyPieces();
+
+
+
+
 public:
-    GameState(StateMachine* p_sm, sf::RenderWindow* p_rw);
-    ~GameState();
+    ChessState(StateMachine* p_sm, sf::RenderWindow* p_rw);
+    ~ChessState();
 
 
 };

@@ -4,8 +4,8 @@ project(Chess)
 set(SFML_DIR C:/StudentFiles/Student/SFML-2.6.1/lib/cmake/SFML)
 set(CMAKE_CXX_STANDARD 17)
 set(SOURCE_FILES src/main.cpp
-        src/GameState.cpp
-        src/GameState.h
+        src/ChessState.cpp
+        src/ChessState.h
         src/StateMachine.cpp
         src/StateMachine.h
         src/State.cpp
@@ -31,7 +31,10 @@ set(SOURCE_FILES src/main.cpp
         src/PromotionUI.cpp
         src/PromotionUI.h
         src/MoveVisual.cpp
-        src/MoveVisual.h)
+        src/MoveVisual.h
+        src/MultiplayerChessState.cpp
+        src/MultiplayerChessState.h
+        src/MultiplayerChessState.cpp)
 set(SFML_STATIC_LIBRARIES true)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})

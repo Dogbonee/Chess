@@ -2,7 +2,7 @@
 // Created by hunde on 3/30/2024.
 //
 
-#include "GameState.h"
+#include "ChessState.h"
 
 #include "Pieces/Bishop.h"
 #include "Pieces/King.h"
@@ -11,7 +11,7 @@
 #include "Pieces/Rook.h"
 
 
-GameState::GameState(StateMachine* p_sm, sf::RenderWindow* p_rw) : State(p_sm, p_rw), m_moveCounter(0), m_currentMoveCounter(0),
+ChessState::ChessState(StateMachine* p_sm, sf::RenderWindow* p_rw) : State(p_sm, p_rw), m_moveCounter(0), m_currentMoveCounter(0),
 m_bIsBlackTurn(false), m_bWhiteIsChecked(false), m_bBlackIsChecked(false),
 m_bIsWhitePromoting(false), m_bIsBlackPromoting(false), m_whitePromotion(false), m_blackPromotion(true){
 
@@ -42,15 +42,15 @@ m_bIsWhitePromoting(false), m_bIsBlackPromoting(false), m_whitePromotion(false),
     
 }
 
-GameState::~GameState() = default;
+ChessState::~ChessState() = default;
 
-void GameState::Update()
+void ChessState::Update()
 {
     HandleEvents();
     Render();
 }
 
-void GameState::Render()
+void ChessState::Render()
 {
     p_window->clear();
     p_window->draw(m_board);
@@ -84,7 +84,7 @@ void GameState::Render()
     p_window->display();
 }
 
-void GameState::HandleEvents()
+void ChessState::HandleEvents()
 {
     for(sf::Event event{}; p_window->pollEvent(event);)
     {
@@ -182,7 +182,7 @@ void GameState::HandleEvents()
     }
 }
 
-void GameState::HandleKeyboardInput(sf::Keyboard::Key key)
+void ChessState::HandleKeyboardInput(sf::Keyboard::Key key)
 {
     State::HandleKeyboardInput(key);
     switch(key)
@@ -210,7 +210,7 @@ void GameState::HandleKeyboardInput(sf::Keyboard::Key key)
     }
 }
 
-bool GameState::ShouldPromote()
+bool ChessState::ShouldPromote()
 {
     if(p_activePiece->GetPieceType() == WHITE_PAWN && p_activePiece->GetBoardCoordinates().y == 0)
     {
@@ -223,7 +223,7 @@ bool GameState::ShouldPromote()
     return false;
 }
 
-void GameState::PromotePiece(PieceType promotionType)
+void ChessState::PromotePiece(PieceType promotionType)
 {
     switch(promotionType)
     {
@@ -271,7 +271,7 @@ void GameState::PromotePiece(PieceType promotionType)
     m_bIsBlackPromoting = false;
 }
 
-void GameState::DoTurn()
+void ChessState::DoTurn()
 {
 
     if(!(m_bIsWhitePromoting || m_bIsBlackPromoting))
@@ -284,13 +284,14 @@ void GameState::DoTurn()
 
 }
 
-void GameState::DragPiece(sf::Vector2i position)
+void ChessState::DragPiece(sf::Vector2i position)
 {
     p_dragPiece->MovePieceVisual(position);
 }
 
-bool GameState::CheckSpot(sf::Vector2i position)
+bool ChessState::CheckSpot(sf::Vector2i position)
 {
+    m_pieceStartingPosition = position;
     m_tempPieces = CopyPieces();
     if(m_moveCounter != m_currentMoveCounter)
     {
@@ -313,7 +314,7 @@ bool GameState::CheckSpot(sf::Vector2i position)
     return false;
 }
 
-std::vector<sf::Vector2i> GameState::CullMoves()
+std::vector<sf::Vector2i> ChessState::CullMoves()
 {
 
     auto revert = [this](auto tempBoard, auto tempPos)
@@ -377,7 +378,7 @@ std::vector<sf::Vector2i> GameState::CullMoves()
 
 }
 
-void GameState::GenerateMoveVisuals(std::vector<sf::Vector2i> legalMoves)
+void ChessState::GenerateMoveVisuals(std::vector<sf::Vector2i> legalMoves)
 {
 
     m_legalMoveVisuals.clear();
@@ -389,7 +390,7 @@ void GameState::GenerateMoveVisuals(std::vector<sf::Vector2i> legalMoves)
 
 }
 
-void GameState::ConfirmPiece(sf::Vector2i boardCoords)
+void ChessState::ConfirmPiece(sf::Vector2i boardCoords)
 {
     m_moveCounter++;
     m_currentMoveCounter++;
@@ -420,7 +421,7 @@ void GameState::ConfirmPiece(sf::Vector2i boardCoords)
 
 }
 
-void GameState::CapturePiece(sf::Vector2i boordCoords)
+void ChessState::CapturePiece(sf::Vector2i boordCoords)
 {
     for(int i = 0; i < m_pieces.size(); i++)
     {
@@ -432,7 +433,7 @@ void GameState::CapturePiece(sf::Vector2i boordCoords)
 
 }
 
-void GameState::DetermineCheckStatus(sf::Vector2i exceptionBoardCoords)
+void ChessState::DetermineCheckStatus(sf::Vector2i exceptionBoardCoords)
 {
     for(const auto& piece : m_pieces)
     {
@@ -460,13 +461,13 @@ void GameState::DetermineCheckStatus(sf::Vector2i exceptionBoardCoords)
 
 }
 
-void GameState::ForceMove(std::shared_ptr<ChessPiece> p_piece, sf::Vector2i position)
+void ChessState::ForceMove(std::shared_ptr<ChessPiece> p_piece, sf::Vector2i position)
 {
     p_piece->SetPiece(position);
     SyncVisualsWithBoard();
 }
 
-void GameState::CalculateBoardMoves()
+void ChessState::CalculateBoardMoves()
 {
     for(const auto& piece : m_pieces)
     {
@@ -474,13 +475,13 @@ void GameState::CalculateBoardMoves()
     }
 }
 
-void GameState::HandlePieceMovement()
+void ChessState::HandlePieceMovement()
 {
     CalculateBoardMoves();
     DetermineCheckStatus();
 }
 
-void GameState::SyncVisualsWithBoard()
+void ChessState::SyncVisualsWithBoard()
 {
     //This function was implemented to solve the problem of the rook visual not moving when castling. This is bad, as it unnecessarily
     //refreshes all pieces and must be called every turn to be effective. FIX ASAP
@@ -492,7 +493,7 @@ void GameState::SyncVisualsWithBoard()
     }
 }
 
-void GameState::CheckWinCondition()
+void ChessState::CheckWinCondition()
 {
     auto tempActivePiecePtr = p_activePiece;
     bool checkmate = true;
@@ -515,12 +516,12 @@ void GameState::CheckWinCondition()
     p_activePiece = tempActivePiecePtr;
 }
 
-void GameState::Checkmate()
+void ChessState::Checkmate()
 {
     std::cout<< (m_bIsBlackTurn ? "White" : "Black") << " has won the game!\n";
 }
 
-std::vector<std::shared_ptr<ChessPiece>> GameState::CopyPieces()
+std::vector<std::shared_ptr<ChessPiece>> ChessState::CopyPieces()
 {
     std::vector<std::shared_ptr<ChessPiece>> piecesCopy;
     piecesCopy.reserve(m_pieces.size());
@@ -530,3 +531,4 @@ std::vector<std::shared_ptr<ChessPiece>> GameState::CopyPieces()
     }
     return piecesCopy;
 }
+

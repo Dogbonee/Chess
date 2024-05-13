@@ -4,14 +4,16 @@
 
 #include "StateMachine.h"
 
-#include "GameState.h"
+#include "ChessState.h"
+#include "MultiplayerChessState.h"
 #include "System.h"
 
 
-StateMachine::StateMachine() : m_window(sf::VideoMode(System::SCREEN_WIDTH, System::SCREEN_HEIGHT), "Default Name", sf::Style::Fullscreen)
+StateMachine::StateMachine() : m_window(sf::VideoMode(System::SCREEN_WIDTH, System::SCREEN_HEIGHT), "Default Name")
 {
     System::LoadResources();
-    m_states.emplace_back(new GameState(this, &m_window));
+    m_states.emplace_back(new ChessState(this, &m_window));
+    m_states.emplace_back(new MultiplayerChessState(this, &m_window));
     m_window.setFramerateLimit(60);
     //m_window.setVisible(false);
 }
