@@ -1,4 +1,5 @@
 
+#include "MultiplayerChessState.h"
 #include "StateMachine.h"
 
 int main(int argc, char* argv[])

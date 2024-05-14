@@ -61,7 +61,7 @@ protected:
 
     void DoTurn();
     void DragPiece(sf::Vector2i position);
-    bool CheckSpot(sf::Vector2i position);
+    virtual bool CheckSpot(sf::Vector2i position);
     std::vector<sf::Vector2i> CullMoves();
     void GenerateMoveVisuals(std::vector<sf::Vector2i> legalMoves);
     virtual void ConfirmPiece(sf::Vector2i boardCoords);

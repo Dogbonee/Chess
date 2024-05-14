@@ -4,6 +4,8 @@
 
 #ifndef MULTIPLAYERCHESSSTATE_H
 #define MULTIPLAYERCHESSSTATE_H
+#include <thread>
+
 #include "ChessState.h"
 
 struct MovePacket {
@@ -23,23 +25,29 @@ struct MovePacket {
 class MultiplayerChessState : public ChessState{
 
 
-
+    void Update() override;
     void HandleKeyboardInput(sf::Keyboard::Key key) override;
+    bool CheckSpot(sf::Vector2i position) override;
+    void ConfirmPiece(sf::Vector2i boardCoords) override;
 
     bool m_bPlayerIsBlackPiece;
+    bool m_bShouldSendMove;
 
-    void ConfirmPiece(sf::Vector2i boardCoords) override;
+    bool ProcessReceivedMove(MovePacket move);
 
 
     //Multiplayer
     sf::TcpSocket m_socket;
     sf::TcpListener m_listener;
 
+    std::thread m_connectionThread;
+    bool m_bSocketIsReady;
+
 
     void CreateServer();
     void CreateClient();
     void SendMove(MovePacket packet);
-    MovePacket ReceiveMove();
+    bool ReceiveMove(MovePacket& packet);
     void SendData(std::string data);
     std::string ReceiveData();
 
@@ -47,6 +55,9 @@ class MultiplayerChessState : public ChessState{
 
 public:
     MultiplayerChessState(StateMachine* p_sm, sf::RenderWindow* p_rw);
+    ~MultiplayerChessState() override;
+
+protected:
 
 };
 

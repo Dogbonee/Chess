@@ -291,7 +291,7 @@ void ChessState::DragPiece(sf::Vector2i position)
 
 bool ChessState::CheckSpot(sf::Vector2i position)
 {
-    m_pieceStartingPosition = position;
+    m_pieceStartingPosition = p_activePiece->GetBoardCoordinates();
     m_tempPieces = CopyPieces();
     if(m_moveCounter != m_currentMoveCounter)
     {
