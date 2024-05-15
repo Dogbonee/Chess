@@ -76,11 +76,11 @@ bool MultiplayerChessState::ProcessReceivedMove(MovePacket move)
             p_activePiece = piece;
             m_bShouldSendMove = false;
             auto success = ChessState::CheckSpot(move.endingPosition);
-            p_activePiece = tempPiece;
+            //p_activePiece = tempPiece;
             return success;
         }
     }
-    p_activePiece = tempPiece;
+    //p_activePiece = tempPiece;
     return false;
 }
 
