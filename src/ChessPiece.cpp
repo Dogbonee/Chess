@@ -28,8 +28,7 @@ void ChessPiece::SetOriginToCenterOfTexture()
 }
 
 
-//Tries to move the piece to the specified location. Note that this function does nct call CalculatePossibleMoves on success.
-//Will not set piece position automatically, but will modify the chessboard in place.
+//Returns the result that moving will give. Does not move the piece
 //returns 0 on illegal move
 //returns 1 on move to empty square
 //returns 2 on move to filled square
@@ -40,14 +39,20 @@ int ChessPiece::AttemptMove(ChessBoard& board, sf::Vector2i position)
     {
         result++;
         result += board.GetBoard()[position.y][position.x] != EMPTY;
-        board.ModifyBoard(position, m_pieceType);
-        board.ModifyBoard(m_position, EMPTY);
-        m_position = position;
+
         return result;
 
     }
 
     return result;
+}
+
+//Moves the piece. Does not check if the move is legal, use AttemptMove to see the result of a move before calling this function
+void ChessPiece::MovePiece(ChessBoard& board, sf::Vector2i position)
+{
+    board.ModifyBoard(position, m_pieceType);
+    board.ModifyBoard(m_position, EMPTY);
+    m_position = position;
 }
 
 void ChessPiece::SetPiece(sf::Vector2i position)
