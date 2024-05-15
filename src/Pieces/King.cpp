@@ -48,15 +48,17 @@ int King::AttemptMove(ChessBoard &board, sf::Vector2i position)
     int result = ChessPiece::AttemptMove(board, position);
 
     //Castling
-    if(result == 1 && lastPosition.x + 2 == position.x)
+    if(result == 1)
     {
-        p_rightRook->AttemptMove(board, sf::Vector2i(position.x-1, position.y));
+        if(lastPosition.x + 2 == position.x)
+        {
+            p_rightRook->MovePiece(board, sf::Vector2i(position.x-1, position.y));
+        }
+        if(lastPosition.x - 2 == position.x)
+        {
+            p_leftRook->MovePiece(board, sf::Vector2i(position.x+1, position.y));
+        }
     }
-    if(result == 1 && lastPosition.x - 2 == position.x)
-    {
-        p_leftRook->AttemptMove(board, sf::Vector2i(position.x+1, position.y));
-    }
-
 
     return result;
 }
@@ -67,11 +69,17 @@ bool King::CanCastle(const Board &board, bool rightCastling)
     if(rightCastling && p_rightRook->HasMoved())return false;
     if(!rightCastling && p_leftRook->HasMoved())return false;
 
-    if(rightCastling && (board[m_position.y][m_position.x + 1] | board[m_position.y][m_position.x + 2]) != EMPTY)
+    try
     {
-        return false;
-    }
-    if(!rightCastling && (board[m_position.y][m_position.x - 1] | board[m_position.y][m_position.x - 2]) != EMPTY)
+        if(rightCastling && (board[m_position.y].at(m_position.x + 1) | board[m_position.y].at(m_position.x + 2)) != EMPTY)
+        {
+            return false;
+        }
+        if(!rightCastling && (board[m_position.y].at(m_position.x - 1) | board[m_position.y].at(m_position.x - 2)) != EMPTY)
+        {
+            return false;
+        }
+    }catch(std::exception& e)
     {
         return false;
     }

@@ -344,10 +344,9 @@ std::vector<sf::Vector2i> GameState::CullMoves()
             {
                 if((m_bWhiteIsChecked && !m_bIsBlackTurn) || (m_bBlackIsChecked && m_bIsBlackTurn))
                 {
-                    revert(tempBoard, tempPos);
                     continue;
                 }
-                p_activePiece->AttemptMove(m_board, sf::Vector2i(p_activePiece->GetBoardCoordinates().x + kingMove/2, p_activePiece->GetBoardCoordinates().y));
+                p_activePiece->MovePiece(m_board, sf::Vector2i(p_activePiece->GetBoardCoordinates().x + kingMove/2, p_activePiece->GetBoardCoordinates().y));
                 CalculateBoardMoves();
                 DetermineCheckStatus();
                 if((m_bWhiteIsChecked && !m_bIsBlackTurn) || (m_bBlackIsChecked && m_bIsBlackTurn))
@@ -359,10 +358,12 @@ std::vector<sf::Vector2i> GameState::CullMoves()
         }
         if(p_activePiece->AttemptMove(m_board, move) == 2)
         {
+            p_activePiece->MovePiece(m_board, move);
             CalculateBoardMoves();
             DetermineCheckStatus(move);
         }else
         {
+            p_activePiece->MovePiece(m_board, move);
             CalculateBoardMoves();
             DetermineCheckStatus();
         }
@@ -373,8 +374,6 @@ std::vector<sf::Vector2i> GameState::CullMoves()
         revert(tempBoard, tempPos);
     }
     return culledMoves;
-
-
 }
 
 void GameState::GenerateMoveVisuals(std::vector<sf::Vector2i> legalMoves)
@@ -391,19 +390,15 @@ void GameState::GenerateMoveVisuals(std::vector<sf::Vector2i> legalMoves)
 
 void GameState::ConfirmPiece(sf::Vector2i boardCoords)
 {
-    m_moveCounter++;
-    m_currentMoveCounter++;
-    Move move;
-    move.StartPieces = m_tempPieces;
-    move.EndPieces = CopyPieces();
-    m_moves.emplace_back(move);
 
     p_activePiece->SetHasMoved();
+    p_activePiece->MovePiece(m_board, boardCoords);
     SyncVisualsWithBoard(); //TODO: Only move active piece and castling piece
+    m_lastPieceCoords = p_activePiece->getPosition();
     HandlePieceMovement();
     m_legalMoveVisuals.clear();
     m_bIsBlackTurn = !m_bIsBlackTurn;
-    CheckWinCondition();
+    //CheckWinCondition();
 
     if(ShouldPromote())
     {
@@ -417,6 +412,14 @@ void GameState::ConfirmPiece(sf::Vector2i boardCoords)
             m_whitePromotion.SetUIPosition(sf::Vector2f(p_activePiece->GetBoardCoordinates().x * System::TILE_SIZE + System::X_CENTER_OFFSET - System::TILE_SIZE/4, 0));
         }
     }
+
+
+    m_moveCounter++;
+    m_currentMoveCounter++;
+    Move move;
+    move.StartPieces = m_tempPieces;
+    move.EndPieces = CopyPieces();
+    m_moves.emplace_back(move);
 
 }
 
