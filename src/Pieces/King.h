@@ -18,7 +18,7 @@ public:
     King(sf::Vector2i position, bool bIsBlack, const std::shared_ptr<Rook>& LeftRook, const std::shared_ptr<Rook>& RightRook);
     void CalculatePossibleMoves(const Board &board) override;
 
-    int AttemptMove(ChessBoard &board, sf::Vector2i position) override;
+    void MovePiece(ChessBoard &board, sf::Vector2i position) override;
     bool CanCastle(const Board &board, bool rightCastling);
 
     std::shared_ptr<ChessPiece> clone() override;

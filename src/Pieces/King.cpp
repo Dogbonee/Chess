@@ -42,25 +42,19 @@ void King::CalculatePossibleMoves(const Board &board)
 
 }
 
-int King::AttemptMove(ChessBoard &board, sf::Vector2i position)
+void King::MovePiece(ChessBoard &board, sf::Vector2i position)
 {
     auto lastPosition = m_position;
-    int result = ChessPiece::AttemptMove(board, position);
-
-    //Castling
-    if(result == 1)
+    ChessPiece::MovePiece(board, position);
+    if(lastPosition.x + 2 == position.x)
     {
-        if(lastPosition.x + 2 == position.x)
-        {
-            p_rightRook->MovePiece(board, sf::Vector2i(position.x-1, position.y));
-        }
-        if(lastPosition.x - 2 == position.x)
-        {
-            p_leftRook->MovePiece(board, sf::Vector2i(position.x+1, position.y));
-        }
+        p_rightRook->MovePiece(board, sf::Vector2i(position.x-1, position.y));
+    }
+    if(lastPosition.x - 2 == position.x)
+    {
+        p_leftRook->MovePiece(board, sf::Vector2i(position.x+1, position.y));
     }
 
-    return result;
 }
 
 bool King::CanCastle(const Board &board, bool rightCastling)

@@ -282,6 +282,7 @@ void GameState::DoTurn()
     }
 
 
+
 }
 
 void GameState::DragPiece(sf::Vector2i position)
