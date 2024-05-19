@@ -31,7 +31,7 @@ public:
     void SetOriginToCenterOfTexture();
 
     virtual int AttemptMove(ChessBoard& board, sf::Vector2i position);
-    void MovePiece(ChessBoard& board, sf::Vector2i position);
+    virtual void MovePiece(ChessBoard& board, sf::Vector2i position);
     void SetPiece(sf::Vector2i position);
     void SetHasMoved();
     virtual void CalculatePossibleMoves(const Board& board) = 0;
