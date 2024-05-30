@@ -59,17 +59,14 @@ void King::MovePiece(ChessBoard &board, sf::Vector2i position)
 
 bool King::CanCastle(const Board &board, bool rightCastling)
 {
-    if(m_bHasMoved)return false;
-    if(rightCastling && p_rightRook->HasMoved())return false;
-    if(!rightCastling && p_leftRook->HasMoved())return false;
-
+    if(m_bHasMoved || (!p_rightRook || (rightCastling && p_rightRook->HasMoved())) || (!p_leftRook || (!rightCastling && p_leftRook->HasMoved())))return false;
     try
     {
-        if(rightCastling && (board[m_position.y].at(m_position.x + 1) | board[m_position.y].at(m_position.x + 2)) != EMPTY)
+        if((rightCastling && (board[m_position.y].at(m_position.x + 1) | board[m_position.y].at(m_position.x + 2)) != EMPTY))
         {
             return false;
         }
-        if(!rightCastling && (board[m_position.y].at(m_position.x - 1) | board[m_position.y].at(m_position.x - 2)) != EMPTY)
+        if((!rightCastling && (board[m_position.y].at(m_position.x - 1) | board[m_position.y].at(m_position.x - 2)) != EMPTY))
         {
             return false;
         }
@@ -80,6 +77,13 @@ bool King::CanCastle(const Board &board, bool rightCastling)
 
     return true;
 }
+
+void King::SetRookPointers(std::shared_ptr<Rook>* LeftRook, std::shared_ptr<Rook>* RightRook)
+{
+    p_leftRook = *LeftRook;
+    p_rightRook = *RightRook;
+}
+
 
 std::shared_ptr<ChessPiece> King::clone()
 {

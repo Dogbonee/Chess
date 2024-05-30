@@ -21,6 +21,8 @@ public:
     void MovePiece(ChessBoard &board, sf::Vector2i position) override;
     bool CanCastle(const Board &board, bool rightCastling);
 
+    void SetRookPointers( std::shared_ptr<Rook>* LeftRook, std::shared_ptr<Rook>* RightRook);
+
     std::shared_ptr<ChessPiece> clone() override;
 };
 

@@ -194,6 +194,7 @@ void GameState::HandleKeyboardInput(sf::Keyboard::Key key)
                 m_legalMoveVisuals.clear();
                 m_currentMoveCounter--;
                 m_pieces = m_moves[m_currentMoveCounter].StartPieces;
+                m_pieces = CopyPieces();
                 SyncVisualsWithBoard();
             }
             break;
@@ -203,6 +204,7 @@ void GameState::HandleKeyboardInput(sf::Keyboard::Key key)
                 p_activePiece = nullptr;
                 m_legalMoveVisuals.clear();
                 m_pieces = m_moves[m_currentMoveCounter].EndPieces;
+                m_pieces = CopyPieces();
                 m_currentMoveCounter++;
                 SyncVisualsWithBoard();
             }
@@ -401,26 +403,13 @@ void GameState::ConfirmPiece(sf::Vector2i boardCoords)
     m_bIsBlackTurn = !m_bIsBlackTurn;
     //CheckWinCondition();
 
-    if(ShouldPromote())
-    {
-        !m_bIsBlackTurn ? m_bIsBlackPromoting = true : m_bIsWhitePromoting = true;
-        if(m_bIsBlackPromoting)
-        {
-            m_blackPromotion.SetUIPosition(sf::Vector2f(p_activePiece->GetBoardCoordinates().x * System::TILE_SIZE + System::X_CENTER_OFFSET - System::TILE_SIZE/4, System::SCREEN_HEIGHT-System::TILE_SIZE*3/2));
-        }
-        if(m_bIsWhitePromoting)
-        {
-            m_whitePromotion.SetUIPosition(sf::Vector2f(p_activePiece->GetBoardCoordinates().x * System::TILE_SIZE + System::X_CENTER_OFFSET - System::TILE_SIZE/4, 0));
-        }
-    }
-
-
     m_moveCounter++;
     m_currentMoveCounter++;
     Move move;
     move.StartPieces = m_tempPieces;
     move.EndPieces = CopyPieces();
     m_moves.emplace_back(move);
+    m_tempPieces.clear();
 
 }
 
@@ -528,9 +517,42 @@ std::vector<std::shared_ptr<ChessPiece>> GameState::CopyPieces()
 {
     std::vector<std::shared_ptr<ChessPiece>> piecesCopy;
     piecesCopy.reserve(m_pieces.size());
-    for(const auto& ptr : m_pieces)
+
+    std::shared_ptr<ChessPiece> leftBlackRook;
+    std::shared_ptr<ChessPiece> rightBlackRook;
+    std::shared_ptr<ChessPiece> leftWhiteRook;
+    std::shared_ptr<ChessPiece> rightWhiteRook;
+
+
+    for(auto& ptr : m_pieces)
     {
         piecesCopy.push_back(ptr->clone());
+        if(ptr->GetPieceType() == WHITE_ROOK && ptr->GetBoardCoordinates() == sf::Vector2i(7,0))
+        {
+            leftWhiteRook = piecesCopy[piecesCopy.size()-1];
+        }
+        else if(ptr->GetPieceType() == WHITE_ROOK && ptr->GetBoardCoordinates() == sf::Vector2i(7,7))
+        {
+            rightWhiteRook = piecesCopy[piecesCopy.size()-1];
+        }
+        else if(ptr->GetPieceType() == BLACK_ROOK && ptr->GetBoardCoordinates() == sf::Vector2i(7,0))
+        {
+            leftBlackRook = piecesCopy[piecesCopy.size()-1];
+        }
+        else if(ptr->GetPieceType() == BLACK_ROOK && ptr->GetBoardCoordinates() == sf::Vector2i(0,0))
+        {
+            rightBlackRook = piecesCopy[piecesCopy.size()-1];
+        }
+        if(ptr->GetPieceType() == WHITE_KING)
+        {
+            auto castedPtr = std::dynamic_pointer_cast<King>(m_pieces[m_pieces.size() - 1]);
+            castedPtr->SetRookPointers(&std::dynamic_pointer_cast<Rook>(leftWhiteRook), &std::dynamic_pointer_cast<Rook>(rightWhiteRook));
+        }
+        if(ptr->GetPieceType() == BLACK_KING)
+        {
+            auto castedPtr = std::dynamic_pointer_cast<King>(m_pieces[m_pieces.size() - 1]);
+            castedPtr->SetRookPointers(&std::dynamic_pointer_cast<Rook>(leftBlackRook), &std::dynamic_pointer_cast<Rook>(rightBlackRook));
+        }
     }
     return piecesCopy;
 }
